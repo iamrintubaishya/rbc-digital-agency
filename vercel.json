@@ -1,24 +1,11 @@
 
 {
-  "version": 2,
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/public",
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.ts"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/api/(.*)",
+      "destination": "/api"
     }
   ]
 }

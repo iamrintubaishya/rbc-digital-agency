@@ -16,10 +16,9 @@
    - The app works out of the box with in-memory storage for demo purposes
 
 3. **Build Settings**
-   - Framework Preset: **Other**
-   - Build Command: `npm run vercel-build` (automatically configured in vercel.json)
-   - Output Directory: `dist/public` (automatically configured in vercel.json)
-   - Install Command: `npm install`
+   - Framework Preset: **Other** (or leave as auto-detect)
+   - All settings are pre-configured in `vercel.json`
+   - No manual configuration needed
 
 4. **Deploy**
    - Click "Deploy" - Vercel will automatically build and deploy your app
@@ -60,5 +59,7 @@ The app will run on `http://localhost:5000` with hot reload enabled.
 ## Troubleshooting
 
 - **Build fails**: Check that all dependencies are in `package.json`
+- **Runtime error**: Ensure function runtime is properly specified in `vercel.json`
 - **API not working**: Verify `vercel.json` routes are correct
 - **Functions timeout**: Check Vercel function limits and optimize code
+- **Deploy fails**: Try removing build cache in Vercel dashboard
