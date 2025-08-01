@@ -1,0 +1,84 @@
+# RBC Digital Agency - Business Website
+
+## Overview
+
+This is a marketing website for RBC Digital Agency, a digital marketing company that specializes in helping local service businesses grow through their 5-part Digital Growth Playbook. The website showcases their services including social media content creation, ad marketing, AI automation, landing pages, and analytics across multiple industry verticals.
+
+The application is built as a full-stack web application with a React frontend and Express backend, featuring contact forms, booking modals, and a chat interface for lead generation.
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React 18 with TypeScript, using Vite as the build tool
+- **UI Framework**: shadcn/ui components built on Radix UI primitives
+- **Styling**: Tailwind CSS with custom dark theme variables and CSS custom properties
+- **State Management**: TanStack Query (React Query) for server state and API calls
+- **Routing**: Wouter for lightweight client-side routing
+- **Layout**: Single-page application with horizontal scrolling sections and fixed sidebar navigation
+
+### Backend Architecture
+- **Runtime**: Node.js with Express.js framework
+- **Language**: TypeScript with ES modules
+- **API Design**: RESTful API with JSON responses
+- **Error Handling**: Centralized error middleware with structured error responses
+- **Development**: Hot module replacement via Vite integration in development mode
+
+### Data Storage Solutions
+- **Database**: PostgreSQL configured through Drizzle ORM
+- **Schema Management**: Drizzle Kit for migrations and schema definitions
+- **Fallback Storage**: In-memory storage implementation for development/testing
+- **Connection**: Neon Database serverless PostgreSQL via connection string
+
+### Database Schema
+- **Users Table**: Basic user authentication with username/password
+- **Contacts Table**: Lead capture with business information and challenges
+- **Bookings Table**: Appointment scheduling with preferred dates
+- **Data Validation**: Zod schemas for runtime type checking and API validation
+
+### Form Management
+- **Contact Forms**: Multi-field lead capture with business type selection
+- **Booking System**: Modal-based appointment scheduling
+- **Validation**: Client and server-side validation using Zod schemas
+- **User Feedback**: Toast notifications for form submission status
+
+### UI/UX Design Patterns
+- **Design System**: Consistent component library with shadcn/ui
+- **Theme**: Dark theme with blue/green accent colors
+- **Layout**: Horizontal scrolling sections with snap-to-section behavior
+- **Navigation**: Fixed sidebar with section-based navigation
+- **Responsive**: Mobile-first design with responsive breakpoints
+- **Animations**: CSS transitions and hover effects for interactive elements
+
+## External Dependencies
+
+### Database & ORM
+- **Neon Database**: Serverless PostgreSQL hosting
+- **Drizzle ORM**: Type-safe database queries and schema management
+- **Drizzle Kit**: Database migration and schema generation tools
+
+### UI Component Libraries
+- **Radix UI**: Headless component primitives for accessibility
+- **shadcn/ui**: Pre-built component system built on Radix
+- **Lucide React**: Icon library for consistent iconography
+- **Tailwind CSS**: Utility-first CSS framework
+
+### Form & Validation
+- **React Hook Form**: Form state management and validation
+- **Zod**: Runtime schema validation for TypeScript
+- **Hookform Resolvers**: Integration between React Hook Form and Zod
+
+### Development Tools
+- **Vite**: Fast build tool and development server
+- **TypeScript**: Static type checking and improved developer experience
+- **ESBuild**: Fast JavaScript bundler for production builds
+- **PostCSS**: CSS processing with Tailwind and Autoprefixer
+
+### Production Dependencies
+- **TanStack Query**: Server state management and caching
+- **Wouter**: Lightweight client-side routing
+- **Class Variance Authority**: Utility for managing component variants
+- **Date-fns**: Date manipulation and formatting utilities
