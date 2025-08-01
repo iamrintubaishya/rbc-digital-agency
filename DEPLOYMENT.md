@@ -11,9 +11,10 @@
    - Connect your GitHub/GitLab repository
    - Import the project
 
-2. **Environment Variables (Optional)**
-   - Add `DATABASE_URL` if you want to use PostgreSQL instead of in-memory storage
-   - The app works out of the box with in-memory storage for demo purposes
+2. **Environment Variables (Required for Production)**
+   - Add `DATABASE_URL` with your Neon Database connection string
+   - Get this from [neon.tech](https://neon.tech) dashboard
+   - Without it, the app uses in-memory storage (data lost on restarts)
 
 3. **Build Settings**
    - Framework Preset: **Other** (or leave as auto-detect)

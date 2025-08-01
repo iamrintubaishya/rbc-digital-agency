@@ -29,10 +29,11 @@ Deployment preference: Vercel platform for production hosting.
 - **Development**: Hot module replacement via Vite integration in development mode
 
 ### Data Storage Solutions
-- **Database**: PostgreSQL configured through Drizzle ORM
+- **Database**: PostgreSQL via Neon Database (serverless)
+- **ORM**: Drizzle ORM with type-safe queries and schema management
 - **Schema Management**: Drizzle Kit for migrations and schema definitions
-- **Fallback Storage**: In-memory storage implementation for development/testing
-- **Connection**: Neon Database serverless PostgreSQL via connection string
+- **Smart Fallback**: Automatically uses DatabaseStorage with DATABASE_URL, falls back to MemStorage for demos
+- **Connection**: Neon serverless PostgreSQL with connection pooling
 
 ### Database Schema
 - **Users Table**: Basic user authentication with username/password
