@@ -62,8 +62,7 @@ export default function ContactSection() {
   return (
     <section 
       id="contact" 
-      className="min-w-full h-full bg-slate-800 p-8 flex items-center"
-      style={{ scrollSnapAlign: "start" }}
+      className="min-h-screen bg-slate-800 py-20 px-8 flex items-center"
     >
       <div className="max-w-4xl mx-auto w-full text-center">
         <h2 className="text-4xl font-bold mb-6">Ready to Build Your Local Growth Engine?</h2>

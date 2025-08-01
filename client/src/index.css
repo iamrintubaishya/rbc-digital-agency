@@ -94,27 +94,27 @@
   }
 }
 
-/* Custom scrollbar for horizontal scroll */
-.overflow-x-auto::-webkit-scrollbar {
-  height: 8px;
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
 }
 
-.overflow-x-auto::-webkit-scrollbar-track {
+/* Custom scrollbar for vertical scroll */
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-track {
   background: hsl(217, 32%, 17%);
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb {
+body::-webkit-scrollbar-thumb {
   background: hsl(207, 90%, 54%);
   border-radius: 4px;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+body::-webkit-scrollbar-thumb:hover {
   background: hsl(207, 90%, 64%);
-}
-
-/* Smooth scroll behavior */
-.scroll-smooth {
-  scroll-behavior: smooth;
 }
 
 /* Hide scrollbar but keep functionality */

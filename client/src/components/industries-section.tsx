@@ -55,8 +55,7 @@ export default function IndustriesSection() {
   return (
     <section 
       id="industries" 
-      className="min-w-full h-full bg-slate-900 p-8 flex items-center"
-      style={{ scrollSnapAlign: "start" }}
+      className="min-h-screen bg-slate-900 py-20 px-8 flex items-center"
     >
       <div className="max-w-6xl mx-auto w-full">
         <div className="text-center mb-12">

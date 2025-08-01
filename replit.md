@@ -18,7 +18,7 @@ Preferred communication style: Simple, everyday language.
 - **Styling**: Tailwind CSS with custom dark theme variables and CSS custom properties
 - **State Management**: TanStack Query (React Query) for server state and API calls
 - **Routing**: Wouter for lightweight client-side routing
-- **Layout**: Single-page application with horizontal scrolling sections and fixed sidebar navigation
+- **Layout**: Single-page application with vertical scrolling sections and fixed top navigation bar
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework
@@ -48,8 +48,8 @@ Preferred communication style: Simple, everyday language.
 ### UI/UX Design Patterns
 - **Design System**: Consistent component library with shadcn/ui
 - **Theme**: Dark theme with blue/green accent colors
-- **Layout**: Horizontal scrolling sections with snap-to-section behavior
-- **Navigation**: Fixed sidebar with section-based navigation
+- **Layout**: Vertical scrolling sections with smooth scroll behavior
+- **Navigation**: Fixed top navigation bar with responsive mobile menu
 - **Responsive**: Mobile-first design with responsive breakpoints
 - **Animations**: CSS transitions and hover effects for interactive elements
 
