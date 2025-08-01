@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import path from "path";
 
 const app = express();
 app.use(express.json());
@@ -47,12 +48,22 @@ app.use((req, res, next) => {
     throw err;
   });
 
+  const isDev = app.get("env") === "development";
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  if (isDev) {
     await setupVite(app, server);
   } else {
+    const distPath = path.join(process.cwd(), "dist/public");
+    app.use(express.static(distPath));
+
+    // Catch all handler for SPA routing
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+
     serveStatic(app);
   }
 
