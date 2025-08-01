@@ -17,8 +17,8 @@
 
 3. **Build Settings**
    - Framework Preset: **Other**
-   - Build Command: `npm run vercel-build`
-   - Output Directory: `dist/public`
+   - Build Command: `npm run vercel-build` (automatically configured in vercel.json)
+   - Output Directory: `dist/public` (automatically configured in vercel.json)
    - Install Command: `npm install`
 
 4. **Deploy**
