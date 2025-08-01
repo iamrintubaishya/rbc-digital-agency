@@ -35,11 +35,22 @@ export const insertUserSchema = createInsertSchema(users).omit({
 export const insertContactSchema = createInsertSchema(contacts).omit({
   id: true,
   createdAt: true,
+}).extend({
+  firstName: z.string().min(1, "First name is required").max(50, "First name too long"),
+  lastName: z.string().min(1, "Last name is required").max(50, "Last name too long"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  businessType: z.string().optional(),
+  challenge: z.string().optional(),
 });
 
 export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
+}).extend({
+  name: z.string().min(1, "Name is required").max(100, "Name too long"),
+  email: z.string().email("Invalid email address"),
+  preferredDate: z.string().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
