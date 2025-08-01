@@ -56,14 +56,6 @@ app.use((req, res, next) => {
   if (isDev) {
     await setupVite(app, server);
   } else {
-    const distPath = path.join(process.cwd(), "dist/public");
-    app.use(express.static(distPath));
-
-    // Catch all handler for SPA routing
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-
     serveStatic(app);
   }
 
