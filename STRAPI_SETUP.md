@@ -1,68 +1,102 @@
-# Strapi CMS Setup Instructions
+# Strapi CMS Configuration Guide
 
-I've configured Strapi CMS for your RBC Digital Agency website. Here's how to get it running:
+## Overview
 
-## What I've Created For You
+Your RBC Digital Agency website now has Strapi CMS configured as a headless content management system for blog posts. The system is set up with a smart fallback mechanism - it will use Strapi when available, and fallback to your local PostgreSQL database when Strapi is not running.
 
-✅ **Strapi Project Structure** - Complete CMS setup in `strapi-cms/` folder
-✅ **Article Content Type** - Pre-configured for blog posts with all needed fields
-✅ **SEO Component** - Built-in meta tags for search engine optimization
-✅ **Integration Code** - Your website already knows how to connect to Strapi
+## What's Configured
 
-## Installation Steps
+✅ **Strapi CMS Installation**: Complete Strapi v5.20.0 instance installed in `strapi-cms/`
+✅ **Article Content Type**: Pre-configured with fields for title, slug, content, excerpt, author, and cover image
+✅ **Database Configuration**: Uses SQLite for Strapi data (separate from your main PostgreSQL database)
+✅ **API Integration**: Your main application automatically syncs with Strapi via the `/api/blog/posts` endpoint
+✅ **Smart Fallback**: When Strapi is unavailable, the system uses your PostgreSQL database
 
-### 1. Navigate to Strapi Folder
+## Starting Strapi CMS
+
+### Option 1: Use the provided script
+```bash
+./start-strapi.sh
+```
+
+### Option 2: Manual start
 ```bash
 cd strapi-cms
-```
-
-### 2. Install Strapi (One-time Setup)
-```bash
-npx create-strapi-app@latest . --quickstart --skip-cloud
-```
-
-### 3. Start Your CMS
-```bash
 npm run develop
 ```
 
-### 4. Access Admin Panel
-- Open: **http://localhost:1337/admin**
-- Create your admin account
-- You'll see the Article content type ready to use
+## Accessing Strapi Admin
 
-### 5. Create API Token
-1. Go to **Settings → API Tokens**
-2. Click **"Create new API Token"**
-3. Name: "Website Integration"
-4. Set **Full Access** permissions
-5. **Copy the token** - you'll need it next
+1. Start Strapi using one of the methods above
+2. Open your browser to: http://localhost:1337/admin
+3. Create your admin account or use the configured credentials:
+   - Email: admin@rbcdigital.com
+   - Password: admin123
 
-### 6. Connect to Your Website
-Add these environment secrets to your main project:
-- `STRAPI_API_URL`: `http://localhost:1337`
-- `STRAPI_API_TOKEN`: (paste your token here)
+## Creating Blog Content
+
+1. Access the Strapi admin panel
+2. Go to "Content Manager" → "Article"
+3. Click "Create new entry"
+4. Fill in the article details:
+   - **Title**: Your blog post title
+   - **Slug**: Auto-generated URL slug (you can customize)
+   - **Content**: Rich text editor for your article content
+   - **Excerpt**: Short summary for previews
+   - **Author**: Author name
+   - **Cover**: Upload a cover image (optional)
+5. Click "Save" and then "Publish"
 
 ## How It Works
 
-**Content Creation:**
-1. Write articles in Strapi's visual editor
-2. Add images, format text, set SEO tags
-3. Publish when ready
-4. Content automatically appears on your website
+Your main application automatically:
+- Fetches articles from Strapi when available
+- Syncs Strapi articles to your PostgreSQL database
+- Falls back to local database when Strapi is offline
+- Serves content via the `/api/blog/posts` endpoint
 
-**Smart Fallback:**
-- If Strapi is offline, your website still works
-- Content is cached in your database
-- No downtime for visitors
+## API Endpoints
 
-## Next Steps
+- `GET /api/blog/posts` - List all blog posts
+- `GET /api/blog/posts/:slug` - Get specific post by slug
 
-1. **Install Strapi** using the commands above
-2. **Create your first blog post** in the admin panel
-3. **Get your API token** and add it to environment variables
-4. **Your website will automatically start using Strapi**
+## Environment Variables
 
-The integration is already built - you just need to run these setup steps to activate it.
+Strapi uses these environment variables (already configured):
+- `HOST=0.0.0.0`
+- `PORT=1337`
+- `APP_KEYS` - Security keys for Strapi
+- `DATABASE_CLIENT=sqlite` - Uses SQLite for Strapi data
 
-Would you like me to help you with any specific part of the setup?
+## Troubleshooting
+
+**Strapi won't start?**
+- Make sure port 1337 is not in use
+- Check the `strapi-cms/.env` file exists
+- Try running `npm install` in the `strapi-cms/` directory
+
+**Articles not appearing?**
+- Make sure to "Publish" articles in Strapi admin (not just save as draft)
+- Check that your main application is running on port 5000
+- The system will fallback to local database if Strapi is unavailable
+
+**Admin login issues?**
+- Use the credentials: admin@rbcdigital.com / admin123
+- Or create a new admin account on first access
+
+## File Structure
+
+```
+strapi-cms/
+├── src/api/article/          # Article content type
+├── config/                   # Strapi configuration
+├── .env                      # Environment variables
+└── package.json              # Strapi dependencies
+
+server/strapi.ts              # Strapi integration service
+shared/schema.ts              # Database schema with blog_posts table
+```
+
+Your content will be available at both:
+- Strapi admin: http://localhost:1337/admin
+- Your website: http://localhost:5000 (in the blog section)
