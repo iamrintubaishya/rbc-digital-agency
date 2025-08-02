@@ -123,6 +123,14 @@ export class MemStorage implements IStorage {
       {
         title: "5 Digital Marketing Trends That Will Dominate 2025",
         slug: "5-digital-marketing-trends-2025",
+        coverImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
+        contentImages: [
+          "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
+          "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=600&h=400&fit=crop"
+        ],
+        audioUrl: "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav",
+        readingTime: "12 min read",
+        tags: ["Digital Marketing", "Trends", "AI", "Strategy"],
         content: "The digital marketing landscape continues to evolve at breakneck speed. As we head into 2025, businesses need to stay ahead of emerging trends to maintain their competitive edge. Here are the five most impactful trends that will shape digital marketing strategies this year.\n\n## 1. AI-Powered Personalization at Scale\n\nArtificial intelligence is revolutionizing how we deliver personalized experiences. From dynamic content optimization to predictive customer behavior analysis, AI enables marketers to create highly targeted campaigns that resonate with individual users. Smart automation tools can now adjust messaging, timing, and channel selection in real-time based on user interactions.\n\n## 2. Voice Search Optimization\n\nWith voice assistants becoming increasingly sophisticated, optimizing for voice search is no longer optional. Businesses must adapt their SEO strategies to accommodate natural language queries and conversational search patterns. This includes focusing on long-tail keywords and featured snippet optimization.\n\n## 3. Interactive Video Content\n\nStatic video content is giving way to interactive experiences. Features like clickable hotspots, branching narratives, and real-time polls are transforming passive viewers into active participants. This engagement boost translates directly into higher conversion rates and brand loyalty.\n\n## 4. Privacy-First Marketing\n\nWith increasing data privacy regulations and growing consumer awareness, marketers must prioritize transparent, consent-based data collection. First-party data strategies and contextual advertising are becoming essential alternatives to traditional tracking methods.\n\n## 5. Social Commerce Integration\n\nSocial platforms are evolving into comprehensive shopping destinations. Seamless integration between social content and e-commerce functionality allows customers to discover, research, and purchase products without leaving their favorite platforms.\n\nThese trends represent fundamental shifts in how consumers interact with brands online. Businesses that adapt early will capture the most significant advantages in the evolving digital marketplace.",
         excerpt: "Discover the five game-changing digital marketing trends that will define success in 2025, from AI-powered personalization to social commerce integration.",
         author: "Sarah Mitchell",
@@ -131,6 +139,13 @@ export class MemStorage implements IStorage {
       {
         title: "The Complete Guide to Local SEO for Service Businesses",
         slug: "complete-guide-local-seo-service-businesses",
+        coverImage: "https://images.unsplash.com/photo-1486312338219-ce68e2c6068d?w=800&h=600&fit=crop",
+        contentImages: [
+          "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop"
+        ],
+        audioUrl: "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav",
+        readingTime: "15 min read",
+        tags: ["Local SEO", "Service Business", "Google My Business"],
         content: "Local SEO is the lifeblood of service-based businesses. Whether you're a plumber, dentist, or consultant, your ability to be found by nearby customers directly impacts your bottom line. This comprehensive guide covers everything you need to dominate local search results.\n\n## Understanding Local Search Intent\n\nLocal search queries fall into three categories: navigational (finding a specific business), informational (learning about local services), and transactional (ready to hire). Understanding these intents helps you create content that matches what customers are actually searching for.\n\n## Google Business Profile Optimization\n\nYour Google Business Profile is your digital storefront. Complete every section: business hours, contact information, services offered, and high-quality photos. Regular posts and prompt responses to reviews signal to Google that your business is active and customer-focused.\n\n## Citation Building Strategy\n\nConsistent business information across online directories builds trust with search engines. Focus on major directories like Yelp, YellowPages, and industry-specific platforms. Ensure your Name, Address, and Phone number (NAP) information is identical everywhere.\n\n## Review Management\n\nCustomer reviews are ranking factors and conversion drivers. Implement a systematic approach to requesting reviews from satisfied customers. Respond professionally to all reviews, both positive and negative, to demonstrate excellent customer service.\n\n## Local Content Marketing\n\nCreate content that speaks to local customers' needs. This includes location-specific landing pages, local event coverage, and community involvement stories. Local content helps establish your business as a trusted community resource.\n\n## Mobile Optimization\n\nLocal searches happen predominantly on mobile devices. Ensure your website loads quickly, displays properly on small screens, and makes it easy for customers to contact you with prominent click-to-call buttons.\n\nImplementing these strategies systematically will significantly improve your local search visibility and drive more qualified leads to your business.",
         excerpt: "Master local SEO with this comprehensive guide designed specifically for service businesses looking to dominate their local market.",
         author: "Mike Rodriguez",
@@ -139,6 +154,13 @@ export class MemStorage implements IStorage {
       {
         title: "Social Media Content Creation: From Strategy to Execution",
         slug: "social-media-content-creation-strategy-execution",
+        coverImage: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=600&fit=crop",
+        contentImages: [
+          "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&h=400&fit=crop"
+        ],
+        audioUrl: "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav",
+        readingTime: "10 min read",
+        tags: ["Social Media", "Content Creation", "Strategy"],
         content: "Creating compelling social media content that drives engagement and conversions requires a strategic approach. This guide walks you through the entire process, from initial planning to performance optimization.\n\n## Content Strategy Foundation\n\nSuccessful social media starts with understanding your audience deeply. Create detailed buyer personas that include demographics, interests, pain points, and social media behavior patterns. This foundation informs every content decision you make.\n\n## Platform-Specific Optimization\n\nEach social platform has unique characteristics and user expectations. Instagram favors visually stunning content, LinkedIn rewards professional insights, TikTok thrives on authentic, entertaining videos, and Facebook emphasizes community building. Tailor your content accordingly.\n\n## Content Calendar Planning\n\nConsistency is key to social media success. Develop a content calendar that balances promotional content with value-driven posts. Use the 80/20 rule: 80% valuable, entertaining, or educational content, and 20% promotional material.\n\n## Visual Content Creation\n\nVisual elements drive engagement across all platforms. Invest in high-quality photography, create branded graphics templates, and maintain consistent visual aesthetics. Tools like Canva and Adobe Creative Suite can help streamline your design process.\n\n## Engagement Strategies\n\nSocial media is about conversation, not broadcasting. Actively respond to comments, participate in relevant discussions, and use interactive features like polls, questions, and live videos to encourage audience participation.\n\n## Performance Tracking\n\nMonitor key metrics that align with your business goals: reach, engagement rate, website traffic, and conversions. Use platform analytics and third-party tools to gather insights and optimize your strategy continuously.\n\n## Content Repurposing\n\nMaximize your content investment by repurposing successful posts across platforms and formats. A blog post can become an infographic, video series, podcast episode, and multiple social media posts.\n\nWith these strategies, you'll create social media content that not only engages your audience but also drives meaningful business results.",
         excerpt: "Learn how to create engaging social media content that converts, with actionable strategies for every major platform.",
         author: "Jessica Chen",
@@ -215,7 +237,11 @@ export class MemStorage implements IStorage {
         createdAt: new Date(),
         updatedAt: new Date(),
         strapiId: null,
-        coverImage: null,
+        coverImage: (post as any).coverImage || null,
+        contentImages: (post as any).contentImages || null,
+        audioUrl: (post as any).audioUrl || null,
+        readingTime: (post as any).readingTime || null,
+        tags: (post as any).tags || null,
       };
       this.blogPosts.set(id, blogPost);
     });
@@ -275,8 +301,8 @@ export class MemStorage implements IStorage {
 
   async getBlogPosts(): Promise<BlogPost[]> {
     return Array.from(this.blogPosts.values()).sort((a, b) => {
-      const dateA = a.publishedAt ? new Date(a.publishedAt) : new Date(a.createdAt);
-      const dateB = b.publishedAt ? new Date(b.publishedAt) : new Date(b.createdAt);
+      const dateA = a.publishedAt ? new Date(a.publishedAt) : new Date(a.createdAt!);
+      const dateB = b.publishedAt ? new Date(b.publishedAt) : new Date(b.createdAt!);
       return dateB.getTime() - dateA.getTime();
     });
   }
@@ -298,6 +324,10 @@ export class MemStorage implements IStorage {
       excerpt: insertBlogPost.excerpt ?? null,
       author: insertBlogPost.author ?? null,
       coverImage: insertBlogPost.coverImage ?? null,
+      contentImages: insertBlogPost.contentImages ?? null,
+      audioUrl: insertBlogPost.audioUrl ?? null,
+      readingTime: insertBlogPost.readingTime ?? null,
+      tags: insertBlogPost.tags ?? null,
     };
     this.blogPosts.set(id, blogPost);
     return blogPost;

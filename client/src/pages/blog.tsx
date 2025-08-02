@@ -1,22 +1,29 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Calendar, User, ArrowLeft, ExternalLink, Loader2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { Link } from "wouter";
+import { SearchBar } from "../components/ui/search-bar";
+import { Link, useLocation } from "wouter";
 
 interface BlogPost {
   id: string;
   title: string;
   slug: string;
   content: string;
-  excerpt?: string;
-  author?: string;
-  coverImage?: string;
-  publishedAt?: string;
-  createdAt: string;
+  excerpt?: string | null;
+  author?: string | null;
+  coverImage?: string | null;
+  contentImages?: string[] | null;
+  audioUrl?: string | null;
+  readingTime?: string | null;
+  tags?: string[] | null;
+  publishedAt?: string | null;
+  createdAt: string | null;
+  updatedAt?: string | null;
+  strapiId?: string | null;
 }
 
 interface BlogResponse {
@@ -33,6 +40,8 @@ interface BlogResponse {
 
 export function BlogPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [, setLocation] = useLocation();
   const pageSize = 12;
 
   const { data: blogData, isLoading, error } = useQuery<BlogResponse>({
@@ -48,6 +57,26 @@ export function BlogPage() {
 
   const posts = blogData?.data || [];
 
+  // Filter posts based on search query
+  const filteredPosts = useMemo(() => {
+    if (!searchQuery.trim()) return posts;
+    
+    return posts.filter(post => 
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (post.excerpt && post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (post.author && post.author.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [posts, searchQuery]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  const handleSelectPost = (slug: string) => {
+    setLocation(`/blog/${slug}`);
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900">
       {/* Header */}
@@ -61,9 +90,16 @@ export function BlogPage() {
             <h1 className="text-5xl font-bold mb-6">
               Digital Marketing Insights
             </h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
               Expert insights, proven strategies, and the latest trends in digital marketing to help your business grow
             </p>
+            
+            {/* Search Bar */}
+            <SearchBar 
+              blogPosts={posts}
+              onSearch={handleSearch}
+              onSelectPost={handleSelectPost}
+            />
           </div>
         </div>
       </div>
@@ -114,8 +150,18 @@ export function BlogPage() {
 
         {!isLoading && !error && posts.length > 0 && (
           <div className="max-w-6xl mx-auto">
+            {searchQuery && (
+              <div className="mb-8">
+                <p className="text-slate-600 dark:text-slate-400">
+                  {filteredPosts.length === 0 
+                    ? `No results found for "${searchQuery}"`
+                    : `Showing ${filteredPosts.length} result${filteredPosts.length !== 1 ? 's' : ''} for "${searchQuery}"`
+                  }
+                </p>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {posts.map((post) => (
+              {filteredPosts.map((post) => (
                 <Card key={post.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
                   {post.coverImage && (
                     <div className="relative h-48 overflow-hidden">

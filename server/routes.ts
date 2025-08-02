@@ -152,6 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error) {
+      console.error('Blog posts API error:', error);
       res.status(500).json({ 
         success: false, 
         message: "Failed to fetch blog posts" 

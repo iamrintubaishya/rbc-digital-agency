@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { Calendar, User, ArrowLeft, Share2, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
+import { AudioPlayer } from "../components/ui/audio-player";
 import { Link } from "wouter";
 
 interface BlogPost {
@@ -14,6 +15,10 @@ interface BlogPost {
   excerpt?: string;
   author?: string;
   coverImage?: string;
+  contentImages?: string[];
+  audioUrl?: string;
+  readingTime?: string;
+  tags?: string[];
   publishedAt?: string;
   createdAt: string;
 }
@@ -167,6 +172,29 @@ export function BlogPostPage() {
                 alt={post.title}
                 className="w-full h-64 md:h-96 object-cover"
               />
+            </div>
+          )}
+
+          {/* Audio Player */}
+          {post.audioUrl && (
+            <div className="mb-12">
+              <AudioPlayer 
+                audioUrl={post.audioUrl}
+                title={post.title}
+              />
+            </div>
+          )}
+
+          {/* Tags */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="mb-8">
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
             </div>
           )}
           

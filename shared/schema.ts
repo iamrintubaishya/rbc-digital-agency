@@ -37,6 +37,10 @@ export const blogPosts = pgTable("blog_posts", {
   excerpt: text("excerpt"),
   author: text("author"),
   coverImage: text("cover_image"),
+  contentImages: text("content_images").array(),
+  audioUrl: text("audio_url"),
+  readingTime: text("reading_time"),
+  tags: text("tags").array(),
   strapiId: text("strapi_id").unique(),
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -81,6 +85,10 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   excerpt: z.string().optional(),
   author: z.string().optional(),
   coverImage: z.string().url().optional(),
+  contentImages: z.array(z.string().url()).optional(),
+  audioUrl: z.string().url().optional(),
+  readingTime: z.string().optional(),
+  tags: z.array(z.string()).optional(),
   publishedAt: z.string().datetime().optional(),
 });
 
