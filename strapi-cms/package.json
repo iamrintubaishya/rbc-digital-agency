@@ -1,0 +1,26 @@
+{
+  "name": "rbc-digital-cms",
+  "private": true,
+  "version": "0.1.0",
+  "description": "RBC Digital Agency CMS",
+  "scripts": {
+    "build": "strapi build",
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "strapi": "strapi"
+  },
+  "dependencies": {
+    "@strapi/strapi": "4.15.5",
+    "@strapi/plugin-users-permissions": "4.15.5",
+    "@strapi/plugin-i18n": "4.15.5",
+    "better-sqlite3": "8.6.0"
+  },
+  "author": "RBC Digital Agency",
+  "strapi": {
+    "uuid": "rbc-digital-cms"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=20.x.x",
+    "npm": ">=6.0.0"
+  }
+}
