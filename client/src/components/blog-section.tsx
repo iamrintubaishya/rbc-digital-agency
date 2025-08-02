@@ -158,10 +158,12 @@ export function BlogSection() {
                     )}
                   </CardHeader>
                   <CardContent>
-                    <Button variant="ghost" className="group/btn p-0 h-auto font-semibold">
-                      Read More
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                    </Button>
+                    <Link href={`/blog/${post.slug}`}>
+                      <Button variant="ghost" className="group/btn p-0 h-auto font-semibold">
+                        Read More
+                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               ))}

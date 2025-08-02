@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Calendar, User, ArrowLeft, ExternalLink, Loader2 } from "lucide-react";
@@ -31,10 +32,13 @@ interface BlogResponse {
 }
 
 export function BlogPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
+
   const { data: blogData, isLoading, error } = useQuery<BlogResponse>({
-    queryKey: ['/api/blog/posts'],
+    queryKey: ['/api/blog/posts', currentPage],
     queryFn: async () => {
-      const response = await fetch('/api/blog/posts?pageSize=50');
+      const response = await fetch(`/api/blog/posts?page=${currentPage}&pageSize=${pageSize}`);
       if (!response.ok) {
         throw new Error('Failed to fetch blog posts');
       }
@@ -148,22 +152,36 @@ export function BlogPage() {
                     )}
                   </CardHeader>
                   <CardContent>
-                    <Button 
-                      variant="ghost" 
-                      className="group/btn p-0 h-auto font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                    >
-                      Read Full Article
-                      <ExternalLink className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                    </Button>
+                    <Link href={`/blog/${post.slug}`}>
+                      <Button 
+                        variant="ghost" 
+                        className="group/btn p-0 h-auto font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        Read Full Article
+                        <ExternalLink className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
-            {blogData?.meta?.pagination && blogData.meta.pagination.total > posts.length && (
+            {blogData?.meta?.pagination && blogData.meta.pagination.pageCount > currentPage && (
               <div className="text-center mt-16">
-                <Button size="lg" variant="outline">
-                  Load More Articles
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More Articles'
+                  )}
                 </Button>
               </div>
             )}
