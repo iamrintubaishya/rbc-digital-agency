@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRoute } from 'wouter';
 import { format } from 'date-fns';
-import { Calendar, User, ArrowLeft, Share2, Loader2 } from "lucide-react";
+import { Calendar, User, ArrowLeft, Share2, Loader2, Facebook, Twitter, Linkedin, Copy } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { AudioPlayer } from "../components/ui/audio-player";
+import { useToast } from "../hooks/use-toast";
 import { Link } from "wouter";
 
 interface BlogPost {
@@ -38,6 +39,7 @@ interface BlogResponse {
 export function BlogPostPage() {
   const [match, params] = useRoute('/blog/:slug');
   const slug = params?.slug;
+  const { toast } = useToast();
 
   const { data: blogData, isLoading, error } = useQuery<{ data: BlogPost | null }>({
     queryKey: ['/api/blog/posts', slug],
@@ -92,21 +94,54 @@ export function BlogPostPage() {
     );
   }
 
-  const handleShare = async () => {
-    if (navigator.share) {
+  const handleShare = async (platform?: string) => {
+    const url = window.location.href;
+    const title = post.title;
+    const description = post.excerpt || 'Check out this article from RBC Digital Agency';
+
+    if (platform) {
+      let shareUrl = '';
+      switch (platform) {
+        case 'facebook':
+          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+          break;
+        case 'twitter':
+          shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+          break;
+        case 'linkedin':
+          shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+          break;
+        case 'copy':
+          try {
+            await navigator.clipboard.writeText(url);
+            toast({
+              title: "Link copied!",
+              description: "The article link has been copied to your clipboard.",
+            });
+            return;
+          } catch (err) {
+            console.error('Failed to copy:', err);
+            toast({
+              title: "Copy failed",
+              description: "Unable to copy link to clipboard.",
+              variant: "destructive",
+            });
+            return;
+          }
+      }
+      if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+      }
+    } else if (navigator.share) {
       try {
         await navigator.share({
-          title: post.title,
-          text: post.excerpt || 'Check out this article from RBC Digital Agency',
-          url: window.location.href,
+          title,
+          text: description,
+          url,
         });
       } catch (err) {
         console.log('Error sharing:', err);
       }
-    } else {
-      // Fallback to copying URL to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      // You could add a toast notification here
     }
   };
 
@@ -147,15 +182,51 @@ export function BlogPostPage() {
               </p>
             )}
             
-            <div className="mt-8">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Button
-                onClick={handleShare}
+                onClick={() => handleShare()}
                 variant="outline"
                 size="sm"
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20"
               >
                 <Share2 className="w-4 h-4 mr-2" />
                 Share Article
+              </Button>
+              <Button
+                onClick={() => handleShare('facebook')}
+                variant="outline"
+                size="sm"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <Facebook className="w-4 h-4 mr-2" />
+                Facebook
+              </Button>
+              <Button
+                onClick={() => handleShare('twitter')}
+                variant="outline"
+                size="sm"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <Twitter className="w-4 h-4 mr-2" />
+                Twitter
+              </Button>
+              <Button
+                onClick={() => handleShare('linkedin')}
+                variant="outline"
+                size="sm"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <Linkedin className="w-4 h-4 mr-2" />
+                LinkedIn
+              </Button>
+              <Button
+                onClick={() => handleShare('copy')}
+                variant="outline"
+                size="sm"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Link
               </Button>
             </div>
           </div>

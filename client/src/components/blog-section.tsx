@@ -160,8 +160,8 @@ export function BlogSection() {
                   <CardContent>
                     <Link href={`/blog/${post.slug}`}>
                       <Button 
-                        variant="outline" 
-                        className="group/btn w-full justify-between bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 border-blue-200 dark:border-blue-800 hover:from-blue-100 hover:to-green-100 dark:hover:from-blue-900 dark:hover:to-green-900 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300"
+                        variant="ghost" 
+                        className="group/btn w-full justify-between bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 border-0 hover:from-blue-100 hover:to-green-100 dark:hover:from-blue-900 dark:hover:to-green-900 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300"
                       >
                         <span>Read Full Article</span>
                         <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
