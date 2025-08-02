@@ -54,11 +54,6 @@ export default function Navigation({ activeSection, onSectionChange, onBookingCl
                 </button>
               );
             })}
-            <Link href="/blog">
-              <button className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
-                Blog
-              </button>
-            </Link>
           </div>
           
           {/* CTA Button & Mobile Menu */}
