@@ -10,6 +10,7 @@ The application is built as a full-stack web application with a React frontend a
 
 Preferred communication style: Simple, everyday language.
 Deployment preference: Vercel platform for production hosting.
+Code change policy: Always ask for permission before making code changes.
 
 ## System Architecture
 
