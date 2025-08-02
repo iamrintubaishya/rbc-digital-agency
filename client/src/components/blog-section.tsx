@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Calendar, User, ArrowRight, ExternalLink } from "lucide-react";
+import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -168,10 +169,12 @@ export function BlogSection() {
 
             {posts.length >= 6 && (
               <div className="text-center mt-12">
-                <Button size="lg" variant="outline">
-                  View All Articles
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                <Link href="/blog">
+                  <Button size="lg" variant="outline">
+                    View All Articles
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
               </div>
             )}
           </>
