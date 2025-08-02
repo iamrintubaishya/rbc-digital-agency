@@ -170,10 +170,30 @@ export function BlogPostPage() {
             </div>
           )}
           
-          <div 
-            className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:text-slate-900 dark:prose-strong:text-white"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:text-slate-900 dark:prose-strong:text-white">
+            {post.content.split('\n\n').map((paragraph, index) => {
+              if (paragraph.startsWith('## ')) {
+                return (
+                  <h2 key={index} className="text-2xl font-bold mt-8 mb-4 text-slate-900 dark:text-white">
+                    {paragraph.replace('## ', '')}
+                  </h2>
+                );
+              } else if (paragraph.startsWith('# ')) {
+                return (
+                  <h1 key={index} className="text-3xl font-bold mt-8 mb-6 text-slate-900 dark:text-white">
+                    {paragraph.replace('# ', '')}
+                  </h1>
+                );
+              } else if (paragraph.trim()) {
+                return (
+                  <p key={index} className="mb-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+                    {paragraph}
+                  </p>
+                );
+              }
+              return null;
+            })}
+          </div>
         </div>
       </div>
 
