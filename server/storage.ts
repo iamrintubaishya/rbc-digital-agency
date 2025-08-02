@@ -139,9 +139,10 @@ export class MemStorage implements IStorage {
       {
         title: "The Complete Guide to Local SEO for Service Businesses",
         slug: "complete-guide-local-seo-service-businesses",
-        coverImage: "https://images.unsplash.com/photo-1486312338219-ce68e2c6068d?w=800&h=600&fit=crop",
+        coverImage: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop",
         contentImages: [
-          "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop"
+          "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop",
+          "https://images.unsplash.com/photo-1486312338219-ce68e2c6068d?w=600&h=400&fit=crop"
         ],
         audioUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
         readingTime: "15 min read",

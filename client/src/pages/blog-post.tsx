@@ -247,14 +247,13 @@ export function BlogPostPage() {
           )}
 
           {/* Audio Player */}
-          {post.audioUrl && (
-            <div className="mb-12">
-              <AudioPlayer 
-                audioUrl={post.audioUrl}
-                title={post.title}
-              />
-            </div>
-          )}
+          <div className="mb-12">
+            <AudioPlayer 
+              audioUrl={post.audioUrl}
+              title={post.title}
+              content={post.content}
+            />
+          </div>
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
