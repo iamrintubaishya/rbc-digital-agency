@@ -1,77 +1,61 @@
-# RBC Digital Agency - Strapi CMS
+# 🚀 Getting started with Strapi
 
-This is your content management system for the RBC Digital Agency website.
+Strapi comes with a full featured [Command Line Interface](https://docs.strapi.io/dev-docs/cli) (CLI) which lets you scaffold and manage your project in seconds.
 
-## Quick Setup
+### `develop`
 
-### Step 1: Install Strapi
-Run this command in the `strapi-cms` directory:
-```bash
-npx create-strapi-app@latest . --quickstart --skip-cloud
+Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-develop)
+
 ```
-
-### Step 2: Start Strapi
-```bash
 npm run develop
+# or
+yarn develop
 ```
 
-### Step 3: Access Admin Panel
-- Open: http://localhost:1337/admin
-- Create your admin account when prompted
+### `start`
 
-### Step 4: Configure Content Type
-The Article content type is already configured with these fields:
-- **Title** - Blog post headline
-- **Slug** - URL-friendly version
-- **Content** - Rich text editor for full article
-- **Excerpt** - Short summary
-- **Author** - Writer name
-- **Cover** - Featured image
-- **SEO** - Meta title, description, keywords
+Start your Strapi application with autoReload disabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-start)
 
-### Step 5: Create API Token
-1. Go to Settings → API Tokens
-2. Click "Create new API Token"
-3. Name: "RBC Website Integration"
-4. Token duration: Unlimited
-5. Token type: Full access
-6. Copy the generated token
-
-### Step 6: Connect to Your Website
-Add these environment variables to your main project:
 ```
-STRAPI_API_URL=http://localhost:1337
-STRAPI_API_TOKEN=your-token-here
+npm run start
+# or
+yarn start
 ```
 
-## Content Management Workflow
+### `build`
 
-### Creating Blog Posts:
-1. **Go to Content Manager** → Articles
-2. **Click "Create new entry"**
-3. **Fill in the fields:**
-   - Title: Your blog headline
-   - Content: Write your article (rich text editor)
-   - Excerpt: Brief summary for previews
-   - Author: Your name
-   - Cover: Upload featured image
-   - SEO: Add meta tags for search engines
-4. **Save as Draft** or **Publish** immediately
-5. **Your website automatically syncs** the new content
+Build your admin panel. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-build)
 
-### Benefits:
-- **Visual Editor** - No coding required
-- **Media Library** - Easy image management  
-- **Preview** - See how posts look before publishing
-- **SEO Tools** - Built-in meta tag management
-- **Multi-user** - Team members can contribute
-- **Auto-sync** - Content appears on your website immediately
+```
+npm run build
+# or
+yarn build
+```
 
-## Production Setup
-For live websites, deploy Strapi to:
-- Strapi Cloud (recommended)
-- Heroku
-- DigitalOcean
-- AWS
+## ⚙️ Deployment
 
-Then update `STRAPI_API_URL` to your live Strapi URL.
+Strapi gives you many possible deployment options for your project including [Strapi Cloud](https://cloud.strapi.io). Browse the [deployment section of the documentation](https://docs.strapi.io/dev-docs/deployment) to find the best solution for your use case.
+
+```
+yarn strapi deploy
+```
+
+## 📚 Learn more
+
+- [Resource center](https://strapi.io/resource-center) - Strapi resource center.
+- [Strapi documentation](https://docs.strapi.io) - Official Strapi documentation.
+- [Strapi tutorials](https://strapi.io/tutorials) - List of tutorials made by the core team and the community.
+- [Strapi blog](https://strapi.io/blog) - Official Strapi blog containing articles made by the Strapi team and the community.
+- [Changelog](https://strapi.io/changelog) - Find out about the Strapi product updates, new features and general improvements.
+
+Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/strapi). Your feedback and contributions are welcome!
+
+## ✨ Community
+
+- [Discord](https://discord.strapi.io) - Come chat with the Strapi community including the core team.
+- [Forum](https://forum.strapi.io/) - Place to discuss, ask questions and find answers, show your Strapi project and get feedback or just talk with other Community members.
+- [Awesome Strapi](https://github.com/strapi/awesome-strapi) - A curated list of awesome things related to Strapi.
+
+---
+
+<sub>🤫 Psst! [Strapi is hiring](https://strapi.io/careers).</sub>
