@@ -28,6 +28,11 @@ export function AudioPlayer({ audioUrl, title }: AudioPlayerProps) {
     };
 
     const setAudioTime = () => setCurrentTime(audio.currentTime);
+    
+    const handleLoadError = () => {
+      setIsLoading(false);
+      console.warn('Audio failed to load:', audioUrl);
+    };
 
     if (audio.readyState > 0) {
       setAudioData();
@@ -36,24 +41,31 @@ export function AudioPlayer({ audioUrl, title }: AudioPlayerProps) {
     audio.addEventListener('loadeddata', setAudioData);
     audio.addEventListener('timeupdate', setAudioTime);
     audio.addEventListener('ended', () => setIsPlaying(false));
+    audio.addEventListener('error', handleLoadError);
 
     return () => {
       audio.removeEventListener('loadeddata', setAudioData);
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', () => setIsPlaying(false));
+      audio.removeEventListener('error', handleLoadError);
     };
-  }, []);
+  }, [audioUrl]);
 
-  const togglePlayPause = () => {
+  const togglePlayPause = async () => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
+    try {
+      if (isPlaying) {
+        audio.pause();
+      } else {
+        await audio.play();
+      }
+      setIsPlaying(!isPlaying);
+    } catch (error) {
+      console.warn('Audio playback failed:', error);
+      setIsPlaying(false);
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (value: number[]) => {

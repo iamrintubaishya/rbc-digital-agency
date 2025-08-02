@@ -111,7 +111,7 @@ export function BlogPage() {
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-6 py-16">
+      <div className="container mx-auto px-6 lg:px-16 xl:px-24 py-16">
         {isLoading && (
           <div className="text-center py-16">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
@@ -206,11 +206,11 @@ export function BlogPage() {
                   <CardContent>
                     <Link href={`/blog/${post.slug}`}>
                       <Button 
-                        variant="ghost" 
-                        className="group/btn p-0 h-auto font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        variant="outline" 
+                        className="group/btn w-full justify-between bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 border-blue-200 dark:border-blue-800 hover:from-blue-100 hover:to-green-100 dark:hover:from-blue-900 dark:hover:to-green-900 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300"
                       >
-                        Read Full Article
-                        <ExternalLink className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                        <span>Read Full Article</span>
+                        <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                       </Button>
                     </Link>
                   </CardContent>

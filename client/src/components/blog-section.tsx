@@ -97,7 +97,7 @@ export function BlogSection() {
 
   return (
     <section className="py-20 bg-slate-50 dark:bg-slate-900/50">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 lg:px-16 xl:px-24">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
             Latest Insights
@@ -159,9 +159,12 @@ export function BlogSection() {
                   </CardHeader>
                   <CardContent>
                     <Link href={`/blog/${post.slug}`}>
-                      <Button variant="ghost" className="group/btn p-0 h-auto font-semibold">
-                        Read More
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                      <Button 
+                        variant="outline" 
+                        className="group/btn w-full justify-between bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 border-blue-200 dark:border-blue-800 hover:from-blue-100 hover:to-green-100 dark:hover:from-blue-900 dark:hover:to-green-900 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300"
+                      >
+                        <span>Read Full Article</span>
+                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                       </Button>
                     </Link>
                   </CardContent>
