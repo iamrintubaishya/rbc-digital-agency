@@ -125,6 +125,11 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
   };
 
   const handleSeek = (value: number[]) => {
+    if (speechSupported && content) {
+      // Speech synthesis doesn't support seeking, so we skip this for TTS
+      return;
+    }
+    
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -134,40 +139,68 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
   };
 
   const handleVolumeChange = (value: number[]) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
     const newVolume = value[0];
-    audio.volume = newVolume;
     setVolume(newVolume);
     setIsMuted(newVolume === 0);
+    
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = newVolume;
+    }
+    
+    // Update speech synthesis volume if currently speaking
+    if (speechRef.current) {
+      speechRef.current.volume = newVolume;
+    }
   };
 
   const toggleMute = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
     if (isMuted) {
-      audio.volume = volume;
       setIsMuted(false);
+      const audio = audioRef.current;
+      if (audio) {
+        audio.volume = volume;
+      }
+      if (speechRef.current) {
+        speechRef.current.volume = volume;
+      }
     } else {
-      audio.volume = 0;
       setIsMuted(true);
+      const audio = audioRef.current;
+      if (audio) {
+        audio.volume = 0;
+      }
+      if (speechRef.current) {
+        speechRef.current.volume = 0;
+      }
     }
   };
 
   const skipBack = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.currentTime = Math.max(0, audio.currentTime - 15);
+    if (speechSupported && content && isSpeaking) {
+      // For speech synthesis, we can't skip, so restart from beginning
+      window.speechSynthesis.cancel();
+      setTimeout(() => togglePlayPause(), 100);
+    } else {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.currentTime = Math.max(0, audio.currentTime - 15);
+      }
+    }
   };
 
   const skipForward = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.currentTime = Math.min(duration, audio.currentTime + 15);
+    if (speechSupported && content && isSpeaking) {
+      // For speech synthesis, we can't skip forward, so stop
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setIsPlaying(false);
+    } else {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.currentTime = Math.min(duration, audio.currentTime + 15);
+      }
+    }
   };
 
   const formatTime = (time: number) => {
@@ -206,17 +239,32 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
         <>
           {/* Progress Bar */}
           <div className="mb-4">
-            <Slider
-              value={[currentTime]}
-              max={duration}
-              step={1}
-              onValueChange={handleSeek}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
+            {speechSupported && content ? (
+              // For text-to-speech, show a simple progress indicator
+              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                <div 
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    isSpeaking ? 'bg-blue-600 animate-pulse' : 'bg-slate-300 dark:bg-slate-600'
+                  }`}
+                  style={{ width: isSpeaking ? '100%' : '0%' }}
+                />
+              </div>
+            ) : (
+              // For audio files, show normal progress slider
+              <>
+                <Slider
+                  value={[currentTime]}
+                  max={duration}
+                  step={1}
+                  onValueChange={handleSeek}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Controls */}
