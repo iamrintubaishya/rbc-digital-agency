@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../server/storage';
-import { insertContactSchema, insertBookingSchema } from '../shared/schema';
+import { storage } from '../server/storage.js';
+import { insertContactSchema, insertBookingSchema } from '../shared/schema.js';
 import { z } from 'zod';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -37,6 +37,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (method === 'GET' && path.includes('/bookings')) {
       const bookings = await storage.getBookings();
       return res.json(bookings);
+    }
+
+    // Blog API endpoints
+    if (method === 'GET' && path.includes('/blog/posts')) {
+      if (path.includes('/blog/posts/') && !path.endsWith('/blog/posts/')) {
+        // Individual blog post by slug
+        const slug = path.split('/blog/posts/')[1].split('?')[0];
+        const post = await storage.getBlogPostBySlug(slug);
+        if (post) {
+          return res.json({ data: post });
+        } else {
+          return res.status(404).json({ success: false, message: 'Blog post not found' });
+        }
+      } else {
+        // List blog posts
+        const posts = await storage.getBlogPosts();
+        return res.json({ 
+          data: posts,
+          meta: {
+            pagination: {
+              page: 1,
+              pageSize: posts.length,
+              pageCount: 1,
+              total: posts.length,
+            }
+          }
+        });
+      }
     }
 
     return res.status(404).json({ success: false, message: 'Not found' });

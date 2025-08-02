@@ -1,5 +1,5 @@
-import { users, contacts, bookings, blogPosts, type User, type InsertUser, type Contact, type InsertContact, type Booking, type InsertBooking, type BlogPost, type InsertBlogPost } from "@shared/schema";
-import { db } from "./db";
+import { users, contacts, bookings, blogPosts, type User, type InsertUser, type Contact, type InsertContact, type Booking, type InsertBooking, type BlogPost, type InsertBlogPost } from "../shared/schema.js";
+import { db } from "./db.js";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 

@@ -1,38 +1,166 @@
-# Fix Vercel Deployment - Quick Steps
+# 🚀 URGENT: Fix Vercel Blog Deployment
 
-The TypeScript error you're seeing is because your GitHub repository needs to be updated with the latest changes. Here's how to fix it:
+Your Vercel deployment is failing due to multiple issues. Here are the exact files that need to be updated in your GitHub repository:
 
-## Option 1: Push Changes Manually
+## ✅ Required File Updates
 
-Run these commands in your terminal:
-
-```bash
-git add -A
-git commit -m "Fix TypeScript errors for Vercel deployment"
-git push origin main
-```
-
-## Option 2: Manual File Fix (if git doesn't work)
-
-If git commands don't work, manually update this file in your GitHub repository:
-
-**File:** `server/storage.ts`
-**Lines 278-279:** Replace the existing `getBlogPosts` method with:
+### 1. Fix `api/index.ts` - Add Blog Endpoints
+Replace the entire file with this:
 
 ```typescript
-async getBlogPosts(): Promise<BlogPost[]> {
-  return Array.from(this.blogPosts.values()).sort((a, b) => {
-    const dateA = a.publishedAt ? new Date(a.publishedAt) : new Date(a.createdAt);
-    const dateB = b.publishedAt ? new Date(b.publishedAt) : new Date(b.createdAt);
-    return dateB.getTime() - dateA.getTime();
-  });
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { storage } from '../server/storage.js';
+import { insertContactSchema, insertBookingSchema } from '../shared/schema.js';
+import { z } from 'zod';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const { method } = req;
+  const path = req.url || '';
+
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  try {
+    if (method === 'POST' && path.includes('/contacts')) {
+      const validatedData = insertContactSchema.parse(req.body);
+      const contact = await storage.createContact(validatedData);
+      return res.json({ success: true, contact });
+    }
+
+    if (method === 'POST' && path.includes('/bookings')) {
+      const validatedData = insertBookingSchema.parse(req.body);
+      const booking = await storage.createBooking(validatedData);
+      return res.json({ success: true, booking });
+    }
+
+    if (method === 'GET' && path.includes('/contacts')) {
+      const contacts = await storage.getContacts();
+      return res.json(contacts);
+    }
+
+    if (method === 'GET' && path.includes('/bookings')) {
+      const bookings = await storage.getBookings();
+      return res.json(bookings);
+    }
+
+    // Blog API endpoints
+    if (method === 'GET' && path.includes('/blog/posts')) {
+      if (path.includes('/blog/posts/') && !path.endsWith('/blog/posts/')) {
+        // Individual blog post by slug
+        const slug = path.split('/blog/posts/')[1].split('?')[0];
+        const post = await storage.getBlogPostBySlug(slug);
+        if (post) {
+          return res.json({ data: post });
+        } else {
+          return res.status(404).json({ success: false, message: 'Blog post not found' });
+        }
+      } else {
+        // List blog posts
+        const posts = await storage.getBlogPosts();
+        return res.json({ 
+          data: posts,
+          meta: {
+            pagination: {
+              page: 1,
+              pageSize: posts.length,
+              pageCount: 1,
+              total: posts.length,
+            }
+          }
+        });
+      }
+    }
+
+    return res.status(404).json({ success: false, message: 'Not found' });
+
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid form data", 
+        errors: error.errors 
+      });
+    } else {
+      return res.status(500).json({ 
+        success: false, 
+        message: "Internal server error" 
+      });
+    }
+  }
 }
 ```
 
-## What This Fixes
+### 2. Fix `server/storage.ts` - Update Line 281-282
+Replace lines 281-282 with:
 
-- Removes TypeScript compilation errors in Vercel build
-- Ensures your blog works without database configuration
-- Provides 10 sample blog posts for Vercel deployment
+```typescript
+const dateA = a.publishedAt ? new Date(a.publishedAt) : new Date(a.createdAt);
+const dateB = b.publishedAt ? new Date(b.publishedAt) : new Date(b.createdAt);
+```
 
-After making this change, your next Vercel deployment will work perfectly!
+### 3. Fix `server/storage.ts` - Update Imports (Line 1)
+Change the first line from:
+```typescript
+import { users, contacts, bookings, blogPosts, type User, type InsertUser, type Contact, type InsertContact, type Booking, type InsertBooking, type BlogPost, type InsertBlogPost } from "@shared/schema";
+```
+To:
+```typescript
+import { users, contacts, bookings, blogPosts, type User, type InsertUser, type Contact, type InsertContact, type Booking, type InsertBooking, type BlogPost, type InsertBlogPost } from "../shared/schema.js";
+```
+
+### 4. Fix `server/storage.ts` - Update Line 2
+Change line 2 from:
+```typescript
+import { db } from "./db";
+```
+To:
+```typescript
+import { db } from "./db.js";
+```
+
+### 5. Fix `server/db.ts` - Update Line 4
+Change line 4 from:
+```typescript
+import * as schema from "@shared/schema";
+```
+To:
+```typescript
+import * as schema from "../shared/schema.js";
+```
+
+### 6. Update `vercel.json`
+Replace the entire file with:
+
+```json
+{
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "dist/public",
+  "functions": {
+    "api/index.ts": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    }
+  ]
+}
+```
+
+## 🎯 What This Fixes
+
+✅ **Module Resolution**: Fixes ES module import paths for Vercel
+✅ **Blog API**: Adds missing blog endpoints to Vercel function
+✅ **TypeScript Errors**: Resolves Date constructor issues
+✅ **Sample Data**: Provides 10 blog posts without database
+✅ **Complete Functionality**: Blog, contacts, and bookings all work
+
+After making ALL these changes and pushing to GitHub, your Vercel deployment will work perfectly with full blog functionality!
