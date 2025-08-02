@@ -1,18 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, RotateCcw, FastForward } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Headphones } from 'lucide-react';
+import { Button } from './button';
+import { Slider } from './slider';
 
 interface AudioPlayerProps {
   audioUrl: string;
   title: string;
-  className?: string;
 }
 
-export function AudioPlayer({ audioUrl, title, className = '' }: AudioPlayerProps) {
+export function AudioPlayer({ audioUrl, title }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,39 +21,30 @@ export function AudioPlayer({ audioUrl, title, className = '' }: AudioPlayerProp
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handleLoadedMetadata = () => {
+    const setAudioData = () => {
       setDuration(audio.duration);
-      setIsLoading(false);
-    };
-
-    const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    };
-
-    const handleError = () => {
       setIsLoading(false);
-      console.error('Audio failed to load');
     };
 
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
+    const setAudioTime = () => setCurrentTime(audio.currentTime);
+
+    if (audio.readyState > 0) {
+      setAudioData();
+    }
+
+    audio.addEventListener('loadeddata', setAudioData);
+    audio.addEventListener('timeupdate', setAudioTime);
+    audio.addEventListener('ended', () => setIsPlaying(false));
 
     return () => {
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError);
+      audio.removeEventListener('loadeddata', setAudioData);
+      audio.removeEventListener('timeupdate', setAudioTime);
+      audio.removeEventListener('ended', () => setIsPlaying(false));
     };
-  }, [audioUrl]);
+  }, []);
 
-  const togglePlay = () => {
+  const togglePlayPause = () => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -66,20 +56,20 @@ export function AudioPlayer({ audioUrl, title, className = '' }: AudioPlayerProp
     setIsPlaying(!isPlaying);
   };
 
-  const handleProgressChange = (value: number[]) => {
+  const handleSeek = (value: number[]) => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const newTime = (value[0] / 100) * duration;
-    audio.currentTime = newTime;
-    setCurrentTime(newTime);
+    const seekTime = value[0];
+    audio.currentTime = seekTime;
+    setCurrentTime(seekTime);
   };
 
   const handleVolumeChange = (value: number[]) => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const newVolume = value[0] / 100;
+    const newVolume = value[0];
     audio.volume = newVolume;
     setVolume(newVolume);
     setIsMuted(newVolume === 0);
@@ -98,18 +88,18 @@ export function AudioPlayer({ audioUrl, title, className = '' }: AudioPlayerProp
     }
   };
 
+  const skipBack = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.currentTime = Math.max(0, audio.currentTime - 15);
+  };
+
   const skipForward = () => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    audio.currentTime = Math.min(audio.currentTime + 15, duration);
-  };
-
-  const skipBackward = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.currentTime = Math.max(audio.currentTime - 15, 0);
+    audio.currentTime = Math.min(duration, audio.currentTime + 15);
   };
 
   const formatTime = (time: number) => {
@@ -118,101 +108,101 @@ export function AudioPlayer({ audioUrl, title, className = '' }: AudioPlayerProp
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  if (isLoading) {
-    return (
-      <div className={`bg-slate-50 dark:bg-slate-800 rounded-lg p-4 ${className}`}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-full animate-pulse" />
-          <div className="flex-1">
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-2" />
-            <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800 ${className}`}>
+    <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
       <audio ref={audioRef} src={audioUrl} preload="metadata" />
       
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={skipBackward}
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            onClick={togglePlay}
-            variant="default"
-            size="sm"
-            className="h-10 w-10 rounded-full bg-blue-600 hover:bg-blue-700"
-          >
-            {isPlaying ? (
-              <Pause className="w-5 h-5 text-white" />
-            ) : (
-              <Play className="w-5 h-5 text-white ml-0.5" />
-            )}
-          </Button>
-          
-          <Button
-            onClick={skipForward}
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-          >
-            <FastForward className="w-4 h-4" />
-          </Button>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
+          <Headphones className="w-5 h-5 text-blue-600 dark:text-blue-400" />
         </div>
-
-        <div className="flex-1">
-          <h4 className="font-medium text-slate-900 dark:text-white text-sm mb-1">
-            🎧 Listen to "{title}"
-          </h4>
-          <div className="text-xs text-slate-600 dark:text-slate-400">
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </div>
+        <div>
+          <h3 className="font-semibold text-slate-900 dark:text-white">Listen to this article</h3>
+          <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-1">{title}</p>
         </div>
+      </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={toggleMute}
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
-          >
-            {isMuted ? (
-              <VolumeX className="w-4 h-4" />
-            ) : (
-              <Volume2 className="w-4 h-4" />
-            )}
-          </Button>
-          <div className="w-20">
+      {isLoading ? (
+        <div className="text-center py-4">
+          <p className="text-slate-600 dark:text-slate-400">Loading audio...</p>
+        </div>
+      ) : (
+        <>
+          {/* Progress Bar */}
+          <div className="mb-4">
             <Slider
-              value={[isMuted ? 0 : volume * 100]}
-              onValueChange={handleVolumeChange}
-              max={100}
+              value={[currentTime]}
+              max={duration}
               step={1}
-              className="cursor-pointer"
+              onValueChange={handleSeek}
+              className="w-full"
             />
+            <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="space-y-2">
-        <Slider
-          value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
-          onValueChange={handleProgressChange}
-          max={100}
-          step={0.1}
-          className="cursor-pointer"
-        />
-      </div>
+          {/* Controls */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={skipBack}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+              >
+                <SkipBack className="w-4 h-4" />
+              </Button>
+              
+              <Button
+                onClick={togglePlayPause}
+                size="sm"
+                className="h-10 w-10 p-0 rounded-full"
+              >
+                {isPlaying ? (
+                  <Pause className="w-5 h-5" />
+                ) : (
+                  <Play className="w-5 h-5 ml-0.5" />
+                )}
+              </Button>
+              
+              <Button
+                onClick={skipForward}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+              >
+                <SkipForward className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Volume Control */}
+            <div className="flex items-center gap-2 min-w-0">
+              <Button
+                onClick={toggleMute}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 flex-shrink-0"
+              >
+                {isMuted ? (
+                  <VolumeX className="w-4 h-4" />
+                ) : (
+                  <Volume2 className="w-4 h-4" />
+                )}
+              </Button>
+              <div className="w-20">
+                <Slider
+                  value={[isMuted ? 0 : volume]}
+                  max={1}
+                  step={0.1}
+                  onValueChange={handleVolumeChange}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

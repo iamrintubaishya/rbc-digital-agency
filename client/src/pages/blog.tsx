@@ -96,7 +96,13 @@ export function BlogPage() {
             
             {/* Search Bar */}
             <SearchBar 
-              blogPosts={posts}
+              blogPosts={posts.map(post => ({
+                id: post.id,
+                title: post.title,
+                slug: post.slug,
+                excerpt: post.excerpt,
+                author: post.author
+              }))}
               onSearch={handleSearch}
               onSelectPost={handleSelectPost}
             />
@@ -184,7 +190,7 @@ export function BlogPage() {
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
                         <span>
-                          {format(new Date(post.publishedAt || post.createdAt), 'MMM d, yyyy')}
+                          {format(new Date(post.publishedAt || post.createdAt || new Date()), 'MMM d, yyyy')}
                         </span>
                       </div>
                     </div>
