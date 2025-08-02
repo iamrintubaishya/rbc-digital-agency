@@ -12,6 +12,16 @@ Preferred communication style: Simple, everyday language.
 Deployment preference: Vercel platform for production hosting.
 Code change policy: Always ask for permission before making code changes.
 
+## Recent Changes (August 2025)
+
+✅ **Migration Completed**: Successfully migrated from Replit Agent to Replit environment
+✅ **Strapi CMS Integration**: Added headless CMS integration with local database fallback
+✅ **HubSpot CRM Integration**: Added contact synchronization for booking system
+✅ **Blog Management System**: Complete blog functionality with frontend components
+✅ **Database Setup**: PostgreSQL configured with all required tables and relationships
+✅ **API Development**: RESTful endpoints for contacts, bookings, and blog posts
+✅ **Frontend Components**: BlogSection and BlogPage components with responsive design
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -39,7 +49,8 @@ Code change policy: Always ask for permission before making code changes.
 ### Database Schema
 - **Users Table**: Basic user authentication with username/password
 - **Contacts Table**: Lead capture with business information and challenges
-- **Bookings Table**: Appointment scheduling with preferred dates
+- **Bookings Table**: Appointment scheduling with preferred dates and HubSpot contact ID integration
+- **Blog Posts Table**: Content management with Strapi integration for headless CMS functionality
 - **Data Validation**: Zod schemas for runtime type checking and API validation
 
 ### Form Management
@@ -62,6 +73,11 @@ Code change policy: Always ask for permission before making code changes.
 - **Neon Database**: Serverless PostgreSQL hosting
 - **Drizzle ORM**: Type-safe database queries and schema management
 - **Drizzle Kit**: Database migration and schema generation tools
+
+### CRM & Content Management
+- **HubSpot CRM**: Customer relationship management with automated contact creation
+- **Strapi CMS**: Headless content management system for blog posts with fallback to local database
+- **Date-fns**: Date formatting and manipulation for blog post timestamps
 
 ### UI Component Libraries
 - **Radix UI**: Headless component primitives for accessibility

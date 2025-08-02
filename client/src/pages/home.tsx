@@ -5,6 +5,7 @@ import PlaybookSection from "@/components/playbook-section";
 import ServicesSection from "@/components/services-section";
 import IndustriesSection from "@/components/industries-section";
 import TestimonialsSection from "@/components/testimonials-section";
+import { BlogSection } from "@/components/blog-section";
 import AboutSection from "@/components/about-section";
 import ContactSection from "@/components/contact-section";
 import BookingModal from "@/components/booking-modal";
@@ -25,7 +26,7 @@ export default function Home() {
   // Update active section based on scroll position
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['hero', 'playbook', 'services', 'industries', 'testimonials', 'about', 'contact'];
+      const sections = ['hero', 'playbook', 'services', 'industries', 'testimonials', 'blog', 'about', 'contact'];
       const scrollPosition = window.scrollY + 100;
 
       for (const sectionId of sections) {
@@ -58,6 +59,9 @@ export default function Home() {
         <ServicesSection />
         <IndustriesSection />
         <TestimonialsSection />
+        <section id="blog">
+          <BlogSection />
+        </section>
         <AboutSection />
         <ContactSection />
       </main>

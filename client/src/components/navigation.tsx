@@ -1,5 +1,6 @@
-import { Rocket, Home, BookOpen, Cog, Building, Quote, Users, Mail, CalendarCheck, Menu, X } from "lucide-react";
+import { Rocket, Home, BookOpen, Cog, Building, Quote, Users, Mail, CalendarCheck, Menu, X, PenTool } from "lucide-react";
 import { useState } from "react";
+import { Link } from "wouter";
 
 interface NavigationProps {
   activeSection: string;
@@ -16,6 +17,7 @@ export default function Navigation({ activeSection, onSectionChange, onBookingCl
     { id: "services", label: "Services", icon: Cog },
     { id: "industries", label: "Industries", icon: Building },
     { id: "testimonials", label: "Testimonials", icon: Quote },
+    { id: "blog", label: "Blog", icon: PenTool },
     { id: "about", label: "About", icon: Users },
     { id: "contact", label: "Contact", icon: Mail },
   ];
@@ -52,6 +54,11 @@ export default function Navigation({ activeSection, onSectionChange, onBookingCl
                 </button>
               );
             })}
+            <Link href="/blog">
+              <button className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
+                Blog
+              </button>
+            </Link>
           </div>
           
           {/* CTA Button & Mobile Menu */}
