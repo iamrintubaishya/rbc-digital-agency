@@ -1,11 +1,28 @@
 const strapi = require('@strapi/strapi');
-const app = strapi({ distDir: './dist' });
+
+let instance;
 
 module.exports = async (req, res) => {
-  if (!global.strapi) {
-    global.strapi = await app.load();
+  try {
+    if (!instance) {
+      // Set NODE_ENV to production for Vercel
+      process.env.NODE_ENV = 'production';
+      
+      // Initialize Strapi with the dist directory
+      instance = strapi({ 
+        distDir: './dist',
+        appDir: process.cwd()
+      });
+      
+      await instance.load();
+    }
+    
+    return instance.server.app(req, res);
+  } catch (error) {
+    console.error('Strapi initialization error:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      message: error.message 
+    });
   }
-  
-  await global.strapi.server.mount();
-  return global.strapi.server.app(req, res);
 };

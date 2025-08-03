@@ -2,15 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "package.json",
+      "src": "api/index.js",
       "use": "@vercel/node",
       "config": {
         "includeFiles": [
           "dist/**",
           "config/**",
           "database/**",
-          "public/**",
-          "src/**"
+          "public/**"
         ]
       }
     }
@@ -18,10 +17,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/api"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
