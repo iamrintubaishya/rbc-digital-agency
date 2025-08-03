@@ -19,7 +19,7 @@ npm run develop
 
 ### 🌐 Access Points
 
-- **Strapi Admin Panel**: http://localhost:1337/admin
+- **Strapi Admin Panel**: http://localhost:1338/admin
 - **Your Main Website**: http://localhost:5000
 - **Blog API**: http://localhost:5000/api/blog/posts
 
@@ -41,7 +41,7 @@ This means your website **always works** - whether Strapi is running or not!
 
 ### 📝 Creating Blog Posts
 
-1. Open Strapi admin: http://localhost:1337/admin
+1. Open Strapi admin: http://localhost:1338/admin
 2. Go to "Content Manager" → "Article"
 3. Click "Create new entry"
 4. Fill in:

@@ -34,7 +34,7 @@ class StrapiService {
   private apiToken?: string;
 
   constructor() {
-    this.baseURL = process.env.STRAPI_API_URL || 'http://localhost:1337';
+    this.baseURL = process.env.STRAPI_API_URL || 'http://localhost:1338';
     this.apiToken = process.env.STRAPI_API_TOKEN;
 
     this.client = axios.create({
