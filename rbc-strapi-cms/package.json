@@ -35,6 +35,9 @@
     "node": "20.x",
     "npm": ">=6.0.0"
   },
+  "overrides": {
+    "lodash": "^4.17.21"
+  },
   "strapi": {
     "uuid": "94cd2624-8f99-412b-92bc-2551b3852831",
     "installId": "886631da94a71136864e4d4c96414739a42cffd4ed2beaa6f1e55dd2ba61adca"
