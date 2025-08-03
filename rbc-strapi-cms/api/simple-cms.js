@@ -1,7 +1,7 @@
 // Simple CMS API for Vercel deployment
 // This replaces the complex Strapi setup with a lightweight solution
 
-const blogPosts = [
+let blogPosts = [
   {
     id: 1,
     title: "5 Digital Marketing Trends That Will Dominate 2025",
@@ -146,11 +146,11 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { url } = req;
+  const { url, method } = req;
   
   try {
     // Parse URL and route requests
-    if (url === '/api/articles') {
+    if (url === '/api/articles' && method === 'GET') {
       // Return all articles
       res.status(200).json({
         data: blogPosts.map(post => ({
@@ -166,7 +166,55 @@ module.exports = async (req, res) => {
           }
         }))
       });
-    } else if (url.startsWith('/api/articles/')) {
+    } else if (url === '/api/articles' && method === 'POST') {
+      // Create new article
+      let body = '';
+      req.on('data', chunk => {
+        body += chunk.toString();
+      });
+      req.on('end', () => {
+        try {
+          const articleData = JSON.parse(body);
+          const newId = Math.max(...blogPosts.map(p => p.id)) + 1;
+          const newPost = {
+            id: newId,
+            title: articleData.title,
+            slug: articleData.slug,
+            excerpt: articleData.excerpt,
+            content: articleData.content,
+            author: articleData.author,
+            publishedAt: new Date().toISOString(),
+            cover: null
+          };
+          
+          blogPosts.push(newPost);
+          
+          res.status(201).json({
+            data: {
+              id: newPost.id,
+              attributes: {
+                title: newPost.title,
+                slug: newPost.slug,
+                excerpt: newPost.excerpt,
+                content: newPost.content,
+                author: newPost.author,
+                publishedAt: newPost.publishedAt,
+                cover: newPost.cover
+              }
+            }
+          });
+        } catch (error) {
+          res.status(400).json({
+            error: {
+              status: 400,
+              name: 'ValidationError',
+              message: 'Invalid JSON data'
+            }
+          });
+        }
+      });
+      return;
+    } else if (url.startsWith('/api/articles/') && method === 'GET') {
       // Return specific article by ID or slug
       const identifier = url.split('/api/articles/')[1];
       const post = blogPosts.find(p => 
@@ -197,8 +245,92 @@ module.exports = async (req, res) => {
           }
         });
       }
+    } else if (url.startsWith('/api/articles/') && method === 'PUT') {
+      // Update existing article
+      const identifier = url.split('/api/articles/')[1];
+      const postIndex = blogPosts.findIndex(p => 
+        p.id.toString() === identifier || p.slug === identifier
+      );
+      
+      if (postIndex !== -1) {
+        let body = '';
+        req.on('data', chunk => {
+          body += chunk.toString();
+        });
+        req.on('end', () => {
+          try {
+            const articleData = JSON.parse(body);
+            const updatedPost = {
+              ...blogPosts[postIndex],
+              title: articleData.title || blogPosts[postIndex].title,
+              slug: articleData.slug || blogPosts[postIndex].slug,
+              excerpt: articleData.excerpt || blogPosts[postIndex].excerpt,
+              content: articleData.content || blogPosts[postIndex].content,
+              author: articleData.author || blogPosts[postIndex].author
+            };
+            
+            blogPosts[postIndex] = updatedPost;
+            
+            res.status(200).json({
+              data: {
+                id: updatedPost.id,
+                attributes: {
+                  title: updatedPost.title,
+                  slug: updatedPost.slug,
+                  excerpt: updatedPost.excerpt,
+                  content: updatedPost.content,
+                  author: updatedPost.author,
+                  publishedAt: updatedPost.publishedAt,
+                  cover: updatedPost.cover
+                }
+              }
+            });
+          } catch (error) {
+            res.status(400).json({
+              error: {
+                status: 400,
+                name: 'ValidationError',
+                message: 'Invalid JSON data'
+              }
+            });
+          }
+        });
+        return;
+      } else {
+        res.status(404).json({
+          error: {
+            status: 404,
+            name: 'NotFoundError',
+            message: 'Article not found'
+          }
+        });
+      }
+    } else if (url.startsWith('/api/articles/') && method === 'DELETE') {
+      // Delete article
+      const identifier = url.split('/api/articles/')[1];
+      const postIndex = blogPosts.findIndex(p => 
+        p.id.toString() === identifier || p.slug === identifier
+      );
+      
+      if (postIndex !== -1) {
+        const deletedPost = blogPosts.splice(postIndex, 1)[0];
+        res.status(200).json({
+          data: {
+            id: deletedPost.id,
+            message: 'Article deleted successfully'
+          }
+        });
+      } else {
+        res.status(404).json({
+          error: {
+            status: 404,
+            name: 'NotFoundError',
+            message: 'Article not found'
+          }
+        });
+      }
     } else if (url === '/admin' || url.startsWith('/admin/')) {
-      // Simple admin interface
+      // Enhanced admin interface with edit functionality
       res.status(200).send(`
         <!DOCTYPE html>
         <html>
@@ -207,21 +339,46 @@ module.exports = async (req, res) => {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; background: #f8f9fa; }
-            .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            h1 { color: #2563eb; margin-bottom: 30px; }
-            .post { border: 1px solid #e5e7eb; border-radius: 6px; padding: 20px; margin-bottom: 20px; }
-            .post h3 { margin: 0 0 10px 0; color: #1f2937; }
-            .post p { color: #6b7280; margin: 5px 0; }
+            * { box-sizing: border-box; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f8f9fa; }
+            .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+            .header { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+            h1 { color: #2563eb; margin: 0 0 10px 0; font-size: 2.5em; }
+            .subtitle { color: #6b7280; margin: 0; }
             .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-            .stat { background: #f3f4f6; padding: 20px; border-radius: 6px; text-align: center; }
+            .stat { background: white; padding: 20px; border-radius: 6px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
             .stat h3 { margin: 0; font-size: 2em; color: #2563eb; }
             .stat p { margin: 5px 0 0 0; color: #6b7280; }
+            .actions { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+            .btn { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; margin-right: 10px; text-decoration: none; display: inline-block; }
+            .btn:hover { background: #1d4ed8; }
+            .btn-danger { background: #dc2626; }
+            .btn-danger:hover { background: #b91c1c; }
+            .btn-success { background: #16a34a; }
+            .btn-success:hover { background: #15803d; }
+            .post { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .post h3 { margin: 0 0 10px 0; color: #1f2937; }
+            .post p { color: #6b7280; margin: 5px 0; }
+            .post-actions { margin-top: 15px; }
+            .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+            .modal-content { background: white; margin: 50px auto; padding: 30px; border-radius: 8px; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+            .form-group { margin-bottom: 20px; }
+            .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #1f2937; }
+            .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
+            .form-group textarea { height: 120px; resize: vertical; }
+            .form-group textarea.content { height: 300px; }
+            .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #6b7280; }
+            .close:hover { color: #1f2937; }
+            .success-message { background: #d1fae5; color: #065f46; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+            .error-message { background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
           </style>
         </head>
         <body>
           <div class="container">
-            <h1>🚀 RBC Digital Agency CMS</h1>
+            <div class="header">
+              <h1>🚀 RBC Digital Agency CMS</h1>
+              <p class="subtitle">Manage your blog content and articles</p>
+            </div>
             
             <div class="stats">
               <div class="stat">
@@ -238,23 +395,204 @@ module.exports = async (req, res) => {
               </div>
             </div>
             
+            <div class="actions">
+              <button class="btn btn-success" onclick="openAddModal()">+ Add New Article</button>
+              <a href="/api/articles" target="_blank" class="btn">View API Data</a>
+              <button class="btn" onclick="refreshPage()">Refresh</button>
+            </div>
+            
+            <div style="background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 15px; margin-bottom: 20px; border-radius: 6px;">
+              <strong>⚠️ Important:</strong> Changes are temporary in this demo. For persistent storage, deploy this CMS with a database backend.
+            </div>
+            
+            <div id="message-area"></div>
+            
             <h2>Published Articles</h2>
             ${blogPosts.map(post => `
-              <div class="post">
+              <div class="post" id="post-${post.id}">
                 <h3>${post.title}</h3>
                 <p><strong>Author:</strong> ${post.author}</p>
                 <p><strong>Published:</strong> ${new Date(post.publishedAt).toLocaleDateString()}</p>
                 <p><strong>Slug:</strong> /${post.slug}</p>
                 <p>${post.excerpt}</p>
+                <div class="post-actions">
+                  <button class="btn" onclick="editPost(${post.id})">Edit</button>
+                  <button class="btn" onclick="viewPost('${post.slug}')" target="_blank">View</button>
+                  <button class="btn btn-danger" onclick="deletePost(${post.id})">Delete</button>
+                </div>
               </div>
             `).join('')}
-            
-            <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
-            <p style="text-align: center; color: #6b7280;">
-              Simple CMS API running on Vercel ✨<br>
-              API Endpoint: <code>/api/articles</code>
-            </p>
           </div>
+
+          <!-- Edit/Add Modal -->
+          <div id="editModal" class="modal">
+            <div class="modal-content">
+              <span class="close" onclick="closeModal()">&times;</span>
+              <h2 id="modalTitle">Edit Article</h2>
+              <form id="articleForm">
+                <input type="hidden" id="articleId" value="">
+                <div class="form-group">
+                  <label for="title">Title</label>
+                  <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                  <label for="slug">Slug</label>
+                  <input type="text" id="slug" name="slug" required>
+                </div>
+                <div class="form-group">
+                  <label for="author">Author</label>
+                  <input type="text" id="author" name="author" required>
+                </div>
+                <div class="form-group">
+                  <label for="excerpt">Excerpt</label>
+                  <textarea id="excerpt" name="excerpt" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="content">Content (HTML)</label>
+                  <textarea id="content" name="content" class="content" required></textarea>
+                </div>
+                <div class="form-group">
+                  <button type="submit" class="btn btn-success">Save Article</button>
+                  <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <script>
+            const posts = ${JSON.stringify(blogPosts)};
+            
+            function openAddModal() {
+              document.getElementById('modalTitle').textContent = 'Add New Article';
+              document.getElementById('articleForm').reset();
+              document.getElementById('articleId').value = '';
+              document.getElementById('editModal').style.display = 'block';
+            }
+            
+            function editPost(id) {
+              const post = posts.find(p => p.id === id);
+              if (!post) return;
+              
+              document.getElementById('modalTitle').textContent = 'Edit Article';
+              document.getElementById('articleId').value = post.id;
+              document.getElementById('title').value = post.title;
+              document.getElementById('slug').value = post.slug;
+              document.getElementById('author').value = post.author;
+              document.getElementById('excerpt').value = post.excerpt;
+              document.getElementById('content').value = post.content;
+              document.getElementById('editModal').style.display = 'block';
+            }
+            
+            function viewPost(slug) {
+              window.open('https://rbc-digital-agency.vercel.app/blog/' + slug, '_blank');
+            }
+            
+            async function deletePost(id) {
+              if (confirm('Are you sure you want to delete this article?')) {
+                try {
+                  const response = await fetch('/api/articles/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    }
+                  });
+                  
+                  if (response.ok) {
+                    showMessage('Article deleted successfully!', 'success');
+                    document.getElementById('post-' + id).remove();
+                    updateStats();
+                  } else {
+                    const error = await response.json();
+                    showMessage('Error deleting article: ' + error.error.message, 'error');
+                  }
+                } catch (error) {
+                  showMessage('Error deleting article: ' + error.message, 'error');
+                }
+              }
+            }
+            
+            function closeModal() {
+              document.getElementById('editModal').style.display = 'none';
+            }
+            
+            function refreshPage() {
+              window.location.reload();
+            }
+            
+            function updateStats() {
+              const remainingPosts = document.querySelectorAll('.post').length;
+              document.querySelector('.stat h3').textContent = remainingPosts;
+            }
+            
+            function showMessage(text, type = 'success') {
+              const messageArea = document.getElementById('message-area');
+              messageArea.innerHTML = '<div class="' + type + '-message">' + text + '</div>';
+              setTimeout(() => {
+                messageArea.innerHTML = '';
+              }, 5000);
+            }
+            
+            document.getElementById('articleForm').addEventListener('submit', async function(e) {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const articleData = Object.fromEntries(formData.entries());
+              const articleId = document.getElementById('articleId').value;
+              
+              try {
+                let response;
+                if (articleId) {
+                  // Update existing article
+                  response = await fetch('/api/articles/' + articleId, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(articleData)
+                  });
+                } else {
+                  // Create new article
+                  response = await fetch('/api/articles', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(articleData)
+                  });
+                }
+                
+                if (response.ok) {
+                  const result = await response.json();
+                  showMessage('Article saved successfully!', 'success');
+                  closeModal();
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1500);
+                } else {
+                  const error = await response.json();
+                  showMessage('Error saving article: ' + error.error.message, 'error');
+                }
+              } catch (error) {
+                showMessage('Error saving article: ' + error.message, 'error');
+              }
+            });
+            
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+              const modal = document.getElementById('editModal');
+              if (event.target === modal) {
+                closeModal();
+              }
+            }
+            
+            // Auto-generate slug from title
+            document.getElementById('title').addEventListener('input', function(e) {
+              const slug = e.target.value
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+              document.getElementById('slug').value = slug;
+            });
+          </script>
         </body>
         </html>
       `);
