@@ -246,30 +246,30 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
           comments.map((comment, index) => (
             <div 
               key={comment.id} 
-              className="border-l-2 border-l-slate-200 dark:border-l-slate-700 pl-3 py-2 hover:border-l-blue-400 dark:hover:border-l-blue-500 transition-colors duration-200" 
+              className="bg-slate-50/50 dark:bg-slate-800/30 rounded-lg p-4 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 group" 
               data-testid={`comment-${comment.id}`}
             >
-              <div className="flex items-start gap-2">
-                <div className="flex-shrink-0 mt-0.5">
-                  <div className="w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-                    <User className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 rounded-full flex items-center justify-center border border-blue-200 dark:border-blue-700 group-hover:border-blue-300 dark:group-hover:border-blue-500 transition-colors">
+                    <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h5 className="font-medium text-slate-800 dark:text-slate-200 text-xs">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h5 className="font-semibold text-slate-900 dark:text-white text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       {comment.author}
                     </h5>
-                    <span className="text-xs text-slate-400 dark:text-slate-500">
-                      •
-                    </span>
-                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                    <span className="text-slate-300 dark:text-slate-600">•</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
                       {formatDate(comment.createdAt)}
                     </span>
                   </div>
-                  <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
-                    {comment.content}
-                  </p>
+                  <div className="bg-white dark:bg-slate-900/50 p-3 rounded-md border border-slate-100 dark:border-slate-700">
+                    <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+                      {comment.content}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
