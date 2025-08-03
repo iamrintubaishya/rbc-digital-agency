@@ -1,11 +1,22 @@
 const strapi = require('@strapi/strapi');
-const app = strapi({ distDir: './dist' });
+
+let strapiInstance;
 
 module.exports = async (req, res) => {
-  if (!global.strapi) {
-    global.strapi = await app.load();
+  if (!strapiInstance) {
+    try {
+      strapiInstance = await strapi({
+        distDir: './dist',
+        autoReload: false,
+        serveAdminPanel: true,
+      }).load();
+      
+      await strapiInstance.server.mount();
+    } catch (error) {
+      console.error('Strapi initialization error:', error);
+      return res.status(500).json({ error: 'Failed to initialize Strapi' });
+    }
   }
   
-  await global.strapi.server.mount();
-  return global.strapi.server.app(req, res);
+  return strapiInstance.server.app(req, res);
 };
