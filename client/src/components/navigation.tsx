@@ -58,13 +58,6 @@ export default function Navigation({ activeSection, onSectionChange, onBookingCl
           
           {/* CTA Button & Mobile Menu */}
           <div className="flex items-center space-x-4">
-            <Link 
-              href="/admin-access"
-              className="hidden lg:flex bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors items-center space-x-2 text-sm"
-            >
-              <Shield size={14} />
-              <span>Admin</span>
-            </Link>
             <button
               onClick={onBookingClick}
               className="hidden sm:flex bg-accent hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors items-center space-x-2"
