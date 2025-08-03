@@ -20,13 +20,9 @@ export default function AdminPage() {
   }, []);
 
   const handleAccessAdmin = () => {
-    if (isProduction && import.meta.env.VITE_STRAPI_URL) {
-      // In production, open external Strapi URL
-      window.open(import.meta.env.VITE_STRAPI_URL + '/admin', '_blank');
-    } else {
-      // In development, use proxy route
-      window.open('/admin', '_blank');
-    }
+    // Always use the new lightweight CMS admin
+    const cmsUrl = 'https://rbc-strapi-cms.vercel.app/admin';
+    window.open(cmsUrl, '_blank');
   };
 
   return (
@@ -57,17 +53,16 @@ export default function AdminPage() {
             <CardContent className="space-y-4">
               <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                  Strapi Admin Panel
+                  Lightweight CMS Admin
                 </h3>
                 <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                  Create, edit, and manage all your website content including blog posts, 
-                  images, and media files.
+                  Access your serverless CMS to view and manage blog posts and articles.
                 </p>
                 <ul className="text-sm text-blue-600 dark:text-blue-400 space-y-1">
-                  <li>• Blog post management</li>
-                  <li>• Media library</li>
-                  <li>• Content scheduling</li>
-                  <li>• User permissions</li>
+                  <li>• 5 professional blog posts included</li>
+                  <li>• Fast serverless deployment</li>
+                  <li>• Zero configuration required</li>
+                  <li>• Compatible API structure</li>
                 </ul>
               </div>
               
@@ -76,13 +71,13 @@ export default function AdminPage() {
                 className="w-full bg-blue-600 hover:bg-blue-700"
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
-                Open Strapi Admin
+                Open CMS Admin
               </Button>
               
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                Environment: {isProduction ? 'Production' : 'Development'}
+                Environment: Production
                 <br />
-                URL: {strapiUrl}
+                URL: https://rbc-strapi-cms.vercel.app/admin
               </div>
             </CardContent>
           </Card>
@@ -108,7 +103,7 @@ export default function AdminPage() {
                     variant="outline" 
                     size="sm" 
                     className="w-full justify-start"
-                    onClick={() => window.open('/strapi-api/articles', '_blank')}
+                    onClick={() => window.open('https://rbc-strapi-cms.vercel.app/api/articles', '_blank')}
                   >
                     View API Data
                   </Button>
@@ -126,9 +121,9 @@ export default function AdminPage() {
               <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-3 rounded">
                 <strong>Access Instructions:</strong>
                 <br />
-                • Development: Admin panel proxied through main site
+                • CMS Admin: Direct access to lightweight serverless CMS
                 <br />
-                • Production: Direct access to deployed Strapi instance
+                • API Access: RESTful endpoints for blog content
               </div>
             </CardContent>
           </Card>
@@ -147,9 +142,9 @@ export default function AdminPage() {
                 <div className="text-sm text-blue-700 dark:text-blue-300">Running</div>
               </div>
               <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <div className="font-semibold text-green-900 dark:text-green-100">Strapi CMS</div>
+                <div className="font-semibold text-green-900 dark:text-green-100">Lightweight CMS</div>
                 <div className="text-sm text-green-700 dark:text-green-300">
-                  {isProduction ? 'External' : 'Local Proxy'}
+                  Operational
                 </div>
               </div>
               <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
