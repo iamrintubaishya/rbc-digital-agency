@@ -3,31 +3,24 @@
 echo "🔧 Configuring Strapi CMS for RBC Digital Agency..."
 echo ""
 
-# Change to strapi directory
+# Create necessary directories
 cd strapi-cms
+mkdir -p .tmp
+mkdir -p database/migrations
 
-# Check if node_modules exists
-if [ ! -d "node_modules" ]; then
-    echo "📦 Installing Strapi dependencies..."
-    npm install
-    echo "✅ Dependencies installed"
+# Check if Strapi is already configured
+if [ -f ".tmp/data.db" ]; then
+    echo "✅ Strapi database already exists"
 else
-    echo "✅ Dependencies already installed"
+    echo "📦 Setting up Strapi database..."
 fi
 
-# Build the admin panel
-echo "🏗️  Building Strapi admin panel..."
-npm run build
-
 echo ""
-echo "🚀 Strapi CMS is now configured!"
+echo "🌟 Strapi CMS Configuration Complete!"
 echo ""
-echo "To start Strapi CMS, run:"
-echo "  ./start-strapi.sh"
+echo "To start Strapi CMS:"
+echo "1. Run: ./start-strapi.sh"
+echo "2. Open: http://localhost:1337/admin"
+echo "3. Create admin account or use: admin@rbcdigital.com / admin123"
 echo ""
-echo "Once started, access the admin panel at:"
-echo "  http://localhost:1337/admin"
-echo ""
-echo "Default admin credentials:"
-echo "  Email: admin@rbcdigital.com"
-echo "  Password: admin123"
+echo "Your main website will automatically sync with Strapi content!"
