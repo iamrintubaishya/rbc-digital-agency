@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import { Button } from './button';
 
 interface AudioPlayerProps {
@@ -180,6 +180,33 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
     setCurrentTime(newTime);
   };
 
+  const skipBack = () => {
+    if (speechSupported && content) {
+      // For speech synthesis, restart from beginning
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        setTimeout(() => togglePlayPause(), 100);
+      }
+    } else {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.currentTime = Math.max(0, audio.currentTime - 15);
+      }
+    }
+  };
+
+  const skipForward = () => {
+    if (speechSupported && content) {
+      // For speech synthesis, we can't skip forward
+      return;
+    } else {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.currentTime = Math.min(duration, audio.currentTime + 15);
+      }
+    }
+  };
+
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
@@ -207,24 +234,60 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
       <audio ref={audioRef} src={audioUrl} preload="metadata" />
       
       <div className="flex items-center gap-4">
-        {/* Play/Pause Button */}
-        <Button
-          onClick={togglePlayPause}
-          size="sm"
-          className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
-          data-testid="button-audio-play-pause"
-        >
-          {isPlaying ? (
-            <Pause className="w-5 h-5" />
-          ) : (
-            <Play className="w-5 h-5 ml-0.5" />
+        {/* Audio Controls */}
+        <div className="flex items-center gap-2">
+          {/* Skip Back Button - only show for audio files */}
+          {!speechSupported && audioUrl && (
+            <Button
+              onClick={skipBack}
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-slate-600 hover:text-blue-600"
+              data-testid="button-audio-skip-back"
+            >
+              <SkipBack className="w-4 h-4" />
+            </Button>
           )}
-        </Button>
+          
+          {/* Play/Pause Button */}
+          <Button
+            onClick={togglePlayPause}
+            size="sm"
+            className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+            data-testid="button-audio-play-pause"
+          >
+            {isPlaying ? (
+              <Pause className="w-5 h-5" />
+            ) : (
+              <Play className="w-5 h-5 ml-0.5" />
+            )}
+          </Button>
+
+          {/* Skip Forward Button - only show for audio files */}
+          {!speechSupported && audioUrl && (
+            <Button
+              onClick={skipForward}
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-slate-600 hover:text-blue-600"
+              data-testid="button-audio-skip-forward"
+            >
+              <SkipForward className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
 
         {/* Progress Section */}
         <div className="flex-1">
-          <div className="text-sm font-medium text-slate-900 dark:text-white mb-2">
-            {speechSupported && content ? 'Listen to article' : title}
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-medium text-slate-900 dark:text-white">
+              {speechSupported && content ? 'Listen to article' : title}
+            </div>
+            {!speechSupported && audioUrl && duration > 0 && (
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {formatTime(duration)} total
+              </div>
+            )}
           </div>
           
           {speechSupported && content ? (

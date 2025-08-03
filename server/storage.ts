@@ -119,6 +119,14 @@ export class MemStorage implements IStorage {
   }
 
   private initializeSampleBlogPosts() {
+    // Calculate reading time (average 200 words per minute)
+    const calculateReadingTime = (content: string): string => {
+      const wordsPerMinute = 200;
+      const words = content.trim().split(/\s+/).length;
+      const minutes = Math.ceil(words / wordsPerMinute);
+      return `${minutes} min read`;
+    };
+
     const samplePosts = [
       {
         title: "5 Digital Marketing Trends That Will Dominate 2025",
@@ -290,7 +298,7 @@ export class MemStorage implements IStorage {
         coverImage: (post as any).coverImage || null,
         contentImages: (post as any).contentImages || null,
         audioUrl: (post as any).audioUrl || null,
-        readingTime: (post as any).readingTime || null,
+        readingTime: calculateReadingTime(post.content),
         tags: (post as any).tags || null,
       };
       this.blogPosts.set(id, blogPost);

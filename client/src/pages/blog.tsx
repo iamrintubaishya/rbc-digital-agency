@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Calendar, User, ArrowLeft, ExternalLink, Loader2 } from "lucide-react";
+import { Calendar, User, ArrowLeft, ExternalLink, Loader2, Clock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -193,6 +193,12 @@ export function BlogPage() {
                           {format(new Date(post.publishedAt || post.createdAt || new Date()), 'MMM d, yyyy')}
                         </span>
                       </div>
+                      {post.readingTime && (
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{post.readingTime}</span>
+                        </div>
+                      )}
                     </div>
                     <CardTitle className="line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
                       {post.title}
@@ -207,7 +213,7 @@ export function BlogPage() {
                     <Link href={`/blog/${post.slug}`}>
                       <Button 
                         variant="ghost" 
-                        className="group/btn w-full justify-between bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950 border-none hover:from-blue-100 hover:to-green-100 dark:hover:from-blue-900 dark:hover:to-green-900 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 transition-all duration-300"
+                        className="group/btn w-full justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-all duration-300"
                       >
                         <span>Read Full Article</span>
                         <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
