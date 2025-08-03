@@ -167,7 +167,19 @@ module.exports = async (req, res) => {
         }))
       });
     } else if (url === '/api/articles' && method === 'POST') {
-      // Create new article
+      // Create new article - requires authentication
+      const auth = req.headers.authorization;
+      if (!auth || !auth.startsWith('Basic ')) {
+        res.status(401).json({ error: { status: 401, message: 'Authentication required' } });
+        return;
+      }
+      
+      const credentials = Buffer.from(auth.slice(6), 'base64').toString();
+      const [username, password] = credentials.split(':');
+      if (username !== 'admin' || password !== 'rbc2025!') {
+        res.status(401).json({ error: { status: 401, message: 'Invalid credentials' } });
+        return;
+      }
       let body = '';
       req.on('data', chunk => {
         body += chunk.toString();
@@ -246,7 +258,19 @@ module.exports = async (req, res) => {
         });
       }
     } else if (url.startsWith('/api/articles/') && method === 'PUT') {
-      // Update existing article
+      // Update existing article - requires authentication
+      const auth = req.headers.authorization;
+      if (!auth || !auth.startsWith('Basic ')) {
+        res.status(401).json({ error: { status: 401, message: 'Authentication required' } });
+        return;
+      }
+      
+      const credentials = Buffer.from(auth.slice(6), 'base64').toString();
+      const [username, password] = credentials.split(':');
+      if (username !== 'admin' || password !== 'rbc2025!') {
+        res.status(401).json({ error: { status: 401, message: 'Invalid credentials' } });
+        return;
+      }
       const identifier = url.split('/api/articles/')[1];
       const postIndex = blogPosts.findIndex(p => 
         p.id.toString() === identifier || p.slug === identifier
@@ -306,7 +330,19 @@ module.exports = async (req, res) => {
         });
       }
     } else if (url.startsWith('/api/articles/') && method === 'DELETE') {
-      // Delete article
+      // Delete article - requires authentication
+      const auth = req.headers.authorization;
+      if (!auth || !auth.startsWith('Basic ')) {
+        res.status(401).json({ error: { status: 401, message: 'Authentication required' } });
+        return;
+      }
+      
+      const credentials = Buffer.from(auth.slice(6), 'base64').toString();
+      const [username, password] = credentials.split(':');
+      if (username !== 'admin' || password !== 'rbc2025!') {
+        res.status(401).json({ error: { status: 401, message: 'Invalid credentials' } });
+        return;
+      }
       const identifier = url.split('/api/articles/')[1];
       const postIndex = blogPosts.findIndex(p => 
         p.id.toString() === identifier || p.slug === identifier
@@ -330,6 +366,25 @@ module.exports = async (req, res) => {
         });
       }
     } else if (url === '/admin' || url.startsWith('/admin/')) {
+      // Check for basic authentication
+      const auth = req.headers.authorization;
+      
+      if (!auth || !auth.startsWith('Basic ')) {
+        res.setHeader('WWW-Authenticate', 'Basic realm="RBC CMS Admin"');
+        res.status(401).send('Authentication required');
+        return;
+      }
+      
+      const credentials = Buffer.from(auth.slice(6), 'base64').toString();
+      const [username, password] = credentials.split(':');
+      
+      // Simple authentication (in production, use environment variables)
+      if (username !== 'admin' || password !== 'rbc2025!') {
+        res.setHeader('WWW-Authenticate', 'Basic realm="RBC CMS Admin"');
+        res.status(401).send('Invalid credentials');
+        return;
+      }
+      
       // Enhanced admin interface with edit functionality
       res.status(200).send(`
         <!DOCTYPE html>
@@ -493,7 +548,8 @@ module.exports = async (req, res) => {
                   const response = await fetch('/api/articles/' + id, {
                     method: 'DELETE',
                     headers: {
-                      'Content-Type': 'application/json'
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Basic ' + btoa('admin:rbc2025!')
                     }
                   });
                   
@@ -545,7 +601,8 @@ module.exports = async (req, res) => {
                   response = await fetch('/api/articles/' + articleId, {
                     method: 'PUT',
                     headers: {
-                      'Content-Type': 'application/json'
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Basic ' + btoa('admin:rbc2025!')
                     },
                     body: JSON.stringify(articleData)
                   });
@@ -554,7 +611,8 @@ module.exports = async (req, res) => {
                   response = await fetch('/api/articles', {
                     method: 'POST',
                     headers: {
-                      'Content-Type': 'application/json'
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Basic ' + btoa('admin:rbc2025!')
                     },
                     body: JSON.stringify(articleData)
                   });
