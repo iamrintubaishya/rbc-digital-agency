@@ -28,7 +28,7 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
     email: '',
     content: ''
   });
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -96,12 +96,12 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
         createdAt: new Date().toISOString(),
         postSlug,
         isAdmin: false,
-        replyTo: replyingTo || undefined
+        replyTo: undefined
       };
 
       setComments(prev => [comment, ...prev]);
       setNewComment({ author: '', email: '', content: '' });
-      setReplyingTo(null);
+
       
       toast({
         title: "Comment Added",
@@ -168,28 +168,17 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
         Share your thoughts and join the conversation
       </p>
 
-      {replyingTo && (
-        <div className="flex items-center gap-2 mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-          <Reply className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <span className="text-sm text-blue-700 dark:text-blue-300 font-inter">Replying to comment</span>
-          <button
-            onClick={() => setReplyingTo(null)}
-            className="ml-auto text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            ✕
-          </button>
-        </div>
-      )}
+
 
       {/* Comment Form */}
       <Card className="border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-t-lg">
           <h4 className="font-semibold text-lg flex items-center gap-2 font-inter">
             <MessageCircle className="w-5 h-5" />
-            {replyingTo ? 'Reply to Comment' : 'Leave a Comment'}
+            Leave a Comment
           </h4>
           <p className="text-sm text-blue-100">
-            {replyingTo ? 'Responding to a comment' : 'We\'d love to hear your thoughts on this article'}
+            We'd love to hear your thoughts on this article
           </p>
         </CardHeader>
         <CardContent className="pt-6">
@@ -294,24 +283,7 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
                         {comment.content}
                       </p>
                     </div>
-                    {!isReply && (
-                      <button
-                        onClick={() => {
-                          setReplyingTo(comment.id);
-                          setTimeout(() => {
-                            const form = document.querySelector('[data-testid="comment-form"]');
-                            if (form) {
-                              form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
-                          }, 100);
-                        }}
-                        className="mt-2 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 px-2 py-1 rounded"
-                        data-testid={`reply-button-${comment.id}`}
-                      >
-                        <Reply className="w-3 h-3" />
-                        Reply
-                      </button>
-                    )}
+
                   </div>
                 </div>
               </div>
