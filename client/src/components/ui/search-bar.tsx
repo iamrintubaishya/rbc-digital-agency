@@ -55,6 +55,7 @@ export function SearchBar({ blogPosts, onSearch, onSelectPost }: SearchBarProps)
     setQuery(searchQuery);
     onSearch(searchQuery);
     setIsOpen(false);
+    setSuggestions([]);
   };
 
   const handleSelectPost = (slug: string) => {

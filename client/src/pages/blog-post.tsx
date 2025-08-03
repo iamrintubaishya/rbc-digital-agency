@@ -5,6 +5,7 @@ import { Calendar, User, ArrowLeft, Share2, Loader2, Facebook, Twitter, Linkedin
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { AudioPlayer } from "../components/ui/audio-player";
+import { CommentSection } from "../components/ui/comment-section";
 import { useToast } from "../hooks/use-toast";
 import { Link } from "wouter";
 
@@ -291,6 +292,15 @@ export function BlogPostPage() {
               }
               return null;
             })}
+          </div>
+        </div>
+      </div>
+
+      {/* Comments Section */}
+      <div className="py-16">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto">
+            <CommentSection postSlug={post.slug} />
           </div>
         </div>
       </div>

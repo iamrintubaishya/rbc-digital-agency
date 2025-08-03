@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Headphones } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 import { Button } from './button';
-import { Slider } from './slider';
 
 interface AudioPlayerProps {
   audioUrl?: string;
@@ -13,8 +12,6 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
@@ -64,6 +61,48 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
     }
   }, [audioUrl]);
 
+  // Stop audio when navigating away
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (speechSupported && isSpeaking) {
+        window.speechSynthesis.cancel();
+      }
+      const audio = audioRef.current;
+      if (audio && !audio.paused) {
+        audio.pause();
+      }
+    };
+
+    const handlePopState = () => {
+      if (speechSupported && isSpeaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+        setIsPlaying(false);
+      }
+      const audio = audioRef.current;
+      if (audio && !audio.paused) {
+        audio.pause();
+        setIsPlaying(false);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+      // Cleanup on unmount
+      if (speechSupported && isSpeaking) {
+        window.speechSynthesis.cancel();
+      }
+      const audio = audioRef.current;
+      if (audio && !audio.paused) {
+        audio.pause();
+      }
+    };
+  }, [speechSupported, isSpeaking]);
+
   const togglePlayPause = async () => {
     if (speechSupported && content) {
       // Use text-to-speech
@@ -85,7 +124,6 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
         const utterance = new SpeechSynthesisUtterance(cleanContent);
         utterance.rate = 0.9;
         utterance.pitch = 1;
-        utterance.volume = volume;
         
         utterance.onstart = () => {
           setIsSpeaking(true);
@@ -124,83 +162,22 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
     }
   };
 
-  const handleSeek = (value: number[]) => {
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (speechSupported && content) {
-      // Speech synthesis doesn't support seeking, so we skip this for TTS
+      // Speech synthesis doesn't support seeking
       return;
     }
     
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || duration === 0) return;
 
-    const seekTime = value[0];
-    audio.currentTime = seekTime;
-    setCurrentTime(seekTime);
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
-    setIsMuted(newVolume === 0);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickRatio = clickX / rect.width;
+    const newTime = clickRatio * duration;
     
-    const audio = audioRef.current;
-    if (audio) {
-      audio.volume = newVolume;
-    }
-    
-    // Update speech synthesis volume if currently speaking
-    if (speechRef.current) {
-      speechRef.current.volume = newVolume;
-    }
-  };
-
-  const toggleMute = () => {
-    if (isMuted) {
-      setIsMuted(false);
-      const audio = audioRef.current;
-      if (audio) {
-        audio.volume = volume;
-      }
-      if (speechRef.current) {
-        speechRef.current.volume = volume;
-      }
-    } else {
-      setIsMuted(true);
-      const audio = audioRef.current;
-      if (audio) {
-        audio.volume = 0;
-      }
-      if (speechRef.current) {
-        speechRef.current.volume = 0;
-      }
-    }
-  };
-
-  const skipBack = () => {
-    if (speechSupported && content && isSpeaking) {
-      // For speech synthesis, we can't skip, so restart from beginning
-      window.speechSynthesis.cancel();
-      setTimeout(() => togglePlayPause(), 100);
-    } else {
-      const audio = audioRef.current;
-      if (audio) {
-        audio.currentTime = Math.max(0, audio.currentTime - 15);
-      }
-    }
-  };
-
-  const skipForward = () => {
-    if (speechSupported && content && isSpeaking) {
-      // For speech synthesis, we can't skip forward, so stop
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      setIsPlaying(false);
-    } else {
-      const audio = audioRef.current;
-      if (audio) {
-        audio.currentTime = Math.min(duration, audio.currentTime + 15);
-      }
-    }
+    audio.currentTime = newTime;
+    setCurrentTime(newTime);
   };
 
   const formatTime = (time: number) => {
@@ -209,124 +186,78 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  if (isLoading) {
+    return (
+      <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+        <p className="text-slate-600 dark:text-slate-400 text-center">Loading audio...</p>
+      </div>
+    );
+  }
+
+  if (!speechSupported && !audioUrl) {
+    return (
+      <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+        <p className="text-slate-600 dark:text-slate-400 text-center">Audio not available</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 rounded-lg p-4 border border-blue-200 dark:border-slate-600" data-testid="audio-player">
       <audio ref={audioRef} src={audioUrl} preload="metadata" />
       
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
-          <Headphones className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        </div>
-        <div>
-          <h3 className="font-semibold text-slate-900 dark:text-white">
-            {speechSupported && content ? 'Listen to this article' : 'Audio Player'}
-          </h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-1">
-            {speechSupported && content ? 'AI text-to-speech reading' : title}
-          </p>
+      <div className="flex items-center gap-4">
+        {/* Play/Pause Button */}
+        <Button
+          onClick={togglePlayPause}
+          size="sm"
+          className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+          data-testid="button-audio-play-pause"
+        >
+          {isPlaying ? (
+            <Pause className="w-5 h-5" />
+          ) : (
+            <Play className="w-5 h-5 ml-0.5" />
+          )}
+        </Button>
+
+        {/* Progress Section */}
+        <div className="flex-1">
+          <div className="text-sm font-medium text-slate-900 dark:text-white mb-2">
+            {speechSupported && content ? 'Listen to article' : title}
+          </div>
+          
+          {speechSupported && content ? (
+            // For text-to-speech, show a simple progress indicator
+            <div className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2">
+              <div 
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  isSpeaking ? 'bg-blue-600 animate-pulse' : 'bg-slate-400 dark:bg-slate-500'
+                }`}
+                style={{ width: isSpeaking ? '100%' : '0%' }}
+              />
+            </div>
+          ) : (
+            // For audio files, show clickable progress bar
+            <div className="space-y-1">
+              <div 
+                className="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-2 cursor-pointer"
+                onClick={handleProgressClick}
+                data-testid="audio-progress-bar"
+              >
+                <div 
+                  className="h-2 bg-blue-600 rounded-full transition-all duration-150"
+                  style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
+                />
+              </div>
+              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                <span data-testid="audio-current-time">{formatTime(currentTime)}</span>
+                <span data-testid="audio-duration">{formatTime(duration)}</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {isLoading ? (
-        <div className="text-center py-4">
-          <p className="text-slate-600 dark:text-slate-400">Loading audio...</p>
-        </div>
-      ) : !speechSupported && !audioUrl ? (
-        <div className="text-center py-4">
-          <p className="text-slate-600 dark:text-slate-400">Audio not available on this device</p>
-        </div>
-      ) : (
-        <>
-          {/* Progress Bar */}
-          <div className="mb-4">
-            {speechSupported && content ? (
-              // For text-to-speech, show a simple progress indicator
-              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                <div 
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    isSpeaking ? 'bg-blue-600 animate-pulse' : 'bg-slate-300 dark:bg-slate-600'
-                  }`}
-                  style={{ width: isSpeaking ? '100%' : '0%' }}
-                />
-              </div>
-            ) : (
-              // For audio files, show normal progress slider
-              <>
-                <Slider
-                  value={[currentTime]}
-                  max={duration}
-                  step={1}
-                  onValueChange={handleSeek}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  <span>{formatTime(currentTime)}</span>
-                  <span>{formatTime(duration)}</span>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={skipBack}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
-                <SkipBack className="w-4 h-4" />
-              </Button>
-              
-              <Button
-                onClick={togglePlayPause}
-                size="sm"
-                className="h-10 w-10 p-0 rounded-full"
-              >
-                {isPlaying ? (
-                  <Pause className="w-5 h-5" />
-                ) : (
-                  <Play className="w-5 h-5 ml-0.5" />
-                )}
-              </Button>
-              
-              <Button
-                onClick={skipForward}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
-                <SkipForward className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Volume Control */}
-            <div className="flex items-center gap-2 min-w-0">
-              <Button
-                onClick={toggleMute}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 flex-shrink-0"
-              >
-                {isMuted ? (
-                  <VolumeX className="w-4 h-4" />
-                ) : (
-                  <Volume2 className="w-4 h-4" />
-                )}
-              </Button>
-              <div className="w-20">
-                <Slider
-                  value={[isMuted ? 0 : volume]}
-                  max={1}
-                  step={0.1}
-                  onValueChange={handleVolumeChange}
-                />
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 }
