@@ -262,53 +262,76 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
             </CardContent>
           </Card>
         ) : (
-          comments.map((comment, index) => (
-            <div 
-              key={comment.id} 
-              className={`rounded-lg p-4 border transition-all duration-200 group bg-slate-50/50 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-slate-50 dark:hover:bg-slate-800/50 ${comment.replyTo ? 'ml-8 border-l-4 border-l-blue-400 bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
-              data-testid={`comment-${comment.id}`}
-            >
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center border transition-colors bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 border-blue-200 dark:border-blue-700 group-hover:border-blue-300 dark:group-hover:border-blue-500">
-                    <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          (() => {
+            // Organize comments into parent comments and their replies
+            const parentComments = comments.filter(comment => !comment.replyTo);
+            const replies = comments.filter(comment => comment.replyTo);
+            
+            const renderComment = (comment: Comment, isReply = false) => (
+              <div 
+                key={comment.id} 
+                className={`rounded-lg p-4 border transition-all duration-200 group bg-slate-50/50 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-slate-50 dark:hover:bg-slate-800/50 ${isReply ? 'ml-8 border-l-4 border-l-blue-400 bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
+                data-testid={`comment-${comment.id}`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center border transition-colors bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 border-blue-200 dark:border-blue-700 group-hover:border-blue-300 dark:group-hover:border-blue-500">
+                      <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    </div>
                   </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h5 className="font-semibold text-sm font-inter transition-colors text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                      {comment.author}
-                    </h5>
-                    <span className="text-slate-300 dark:text-slate-600">•</span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full font-mono">
-                      {formatDate(comment.createdAt)}
-                    </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h5 className="font-semibold text-sm font-inter transition-colors text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                        {comment.author}
+                      </h5>
+                      <span className="text-slate-300 dark:text-slate-600">•</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full font-mono">
+                        {formatDate(comment.createdAt)}
+                      </span>
+                    </div>
+                    <div className="p-3 rounded-md border bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-700">
+                      <p className="text-sm leading-relaxed font-inter text-slate-700 dark:text-slate-300">
+                        {comment.content}
+                      </p>
+                    </div>
+                    {!isReply && (
+                      <button
+                        onClick={() => {
+                          setReplyingTo(comment.id);
+                          setTimeout(() => {
+                            const form = document.querySelector('[data-testid="comment-form"]');
+                            if (form) {
+                              form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                          }, 100);
+                        }}
+                        className="mt-2 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 px-2 py-1 rounded"
+                        data-testid={`reply-button-${comment.id}`}
+                      >
+                        <Reply className="w-3 h-3" />
+                        Reply
+                      </button>
+                    )}
                   </div>
-                  <div className="p-3 rounded-md border bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-700">
-                    <p className="text-sm leading-relaxed font-inter text-slate-700 dark:text-slate-300">
-                      {comment.content}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setReplyingTo(comment.id);
-                      setTimeout(() => {
-                        const form = document.querySelector('[data-testid="comment-form"]');
-                        if (form) {
-                          form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                      }, 100);
-                    }}
-                    className="mt-2 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 px-2 py-1 rounded"
-                    data-testid={`reply-button-${comment.id}`}
-                  >
-                    <Reply className="w-3 h-3" />
-                    Reply
-                  </button>
                 </div>
               </div>
-            </div>
-          ))
+            );
+
+            return parentComments.map(parentComment => {
+              const commentReplies = replies.filter(reply => reply.replyTo === parentComment.id);
+              
+              return (
+                <div key={`thread-${parentComment.id}`} className="space-y-3">
+                  {renderComment(parentComment)}
+                  {commentReplies.length > 0 && (
+                    <div className="space-y-3">
+                      {commentReplies.map(reply => renderComment(reply, true))}
+                    </div>
+                  )}
+                </div>
+              );
+            });
+          })()
         )}
       </div>
     </div>
