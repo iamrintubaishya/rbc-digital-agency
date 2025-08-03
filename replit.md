@@ -25,6 +25,7 @@ Code change policy: Always ask for permission before making code changes.
 ✅ **Blog Content Added**: 10 comprehensive blog posts covering digital marketing topics
 ✅ **Vercel Deployment Fix**: Fixed TypeScript errors and added smart fallback system for deployments without database
 ✅ **Smart Storage System**: Application works with PostgreSQL (when available) or in-memory storage (for Vercel without DB)
+✅ **Comment System Enhancement**: Removed admin mode toggle, simplified to show reader comments with reply functionality for Strapi CMS management
 
 ## System Architecture
 
