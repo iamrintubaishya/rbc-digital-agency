@@ -15,6 +15,7 @@ Code change policy: Always ask for permission before making code changes.
 ## Recent Changes (August 2025)
 
 ✅ **Migration Completed**: Successfully migrated from Replit Agent to Replit environment
+✅ **Vercel Node.js Fix**: Fixed Node.js version warning in Strapi CMS deployments by pinning to Node 20.x
 ✅ **Strapi CMS Integration**: Added headless CMS integration with local database fallback
 ✅ **HubSpot CRM Integration**: Added contact synchronization for booking system
 ✅ **Blog Management System**: Complete blog functionality with frontend components
