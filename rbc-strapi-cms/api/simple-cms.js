@@ -196,7 +196,7 @@ module.exports = async (req, res) => {
             content: articleData.content,
             author: articleData.author,
             publishedAt: new Date().toISOString(),
-            cover: null
+            cover: articleData.cover || null
           };
           
           blogPosts.push(newPost);
@@ -290,7 +290,8 @@ module.exports = async (req, res) => {
               slug: articleData.slug || blogPosts[postIndex].slug,
               excerpt: articleData.excerpt || blogPosts[postIndex].excerpt,
               content: articleData.content || blogPosts[postIndex].content,
-              author: articleData.author || blogPosts[postIndex].author
+              author: articleData.author || blogPosts[postIndex].author,
+              cover: articleData.cover || blogPosts[postIndex].cover
             };
             
             blogPosts[postIndex] = updatedPost;
@@ -460,11 +461,16 @@ module.exports = async (req, res) => {
               <strong>⚠️ Important:</strong> Changes are temporary in this demo. For persistent storage, deploy this CMS with a database backend.
             </div>
             
+            <div style="background: #e0f2fe; border: 1px solid #0288d1; color: #01579b; padding: 15px; margin-bottom: 20px; border-radius: 6px;">
+              <strong>✅ Recent Fixes:</strong> Edit functionality restored, View Post links updated, Cover image support added!
+            </div>
+            
             <div id="message-area"></div>
             
             <h2>Published Articles</h2>
             ${blogPosts.map(post => `
               <div class="post" id="post-${post.id}">
+                ${post.cover ? `<img src="${post.cover}" alt="${post.title}" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 15px;">` : ''}
                 <h3>${post.title}</h3>
                 <p><strong>Author:</strong> ${post.author}</p>
                 <p><strong>Published:</strong> ${new Date(post.publishedAt).toLocaleDateString()}</p>
@@ -472,7 +478,7 @@ module.exports = async (req, res) => {
                 <p>${post.excerpt}</p>
                 <div class="post-actions">
                   <button class="btn" onclick="editPost(${post.id})">Edit</button>
-                  <button class="btn" onclick="viewPost('${post.slug}')" target="_blank">View</button>
+                  <button class="btn" onclick="viewPost('${post.slug}')">View</button>
                   <button class="btn btn-danger" onclick="deletePost(${post.id})">Delete</button>
                 </div>
               </div>
@@ -503,8 +509,15 @@ module.exports = async (req, res) => {
                   <textarea id="excerpt" name="excerpt" required></textarea>
                 </div>
                 <div class="form-group">
+                  <label for="cover">Cover Image URL (Optional)</label>
+                  <input type="url" id="cover" name="cover" placeholder="https://example.com/image.jpg">
+                  <small style="color: #6b7280; margin-top: 5px; display: block;">
+                    💡 Use free image services like <a href="https://unsplash.com" target="_blank">Unsplash</a> or <a href="https://pixabay.com" target="_blank">Pixabay</a>
+                  </small>
+                </div>
+                <div class="form-group">
                   <label for="content">Content (HTML)</label>
-                  <textarea id="content" name="content" class="content" required></textarea>
+                  <textarea id="content" name="content" class="content" required placeholder="Enter your article content in HTML format..."></textarea>
                 </div>
                 <div class="form-group">
                   <button type="submit" class="btn btn-success">Save Article</button>
@@ -526,20 +539,24 @@ module.exports = async (req, res) => {
             
             function editPost(id) {
               const post = posts.find(p => p.id === id);
-              if (!post) return;
+              if (!post) {
+                showMessage('Article not found for editing', 'error');
+                return;
+              }
               
               document.getElementById('modalTitle').textContent = 'Edit Article';
               document.getElementById('articleId').value = post.id;
-              document.getElementById('title').value = post.title;
-              document.getElementById('slug').value = post.slug;
-              document.getElementById('author').value = post.author;
-              document.getElementById('excerpt').value = post.excerpt;
-              document.getElementById('content').value = post.content;
+              document.getElementById('title').value = post.title || '';
+              document.getElementById('slug').value = post.slug || '';
+              document.getElementById('author').value = post.author || '';
+              document.getElementById('excerpt').value = post.excerpt || '';
+              document.getElementById('content').value = post.content || '';
+              document.getElementById('cover').value = post.cover || '';
               document.getElementById('editModal').style.display = 'block';
             }
             
             function viewPost(slug) {
-              window.open('https://rbc-digital-agency.vercel.app/blog/' + slug, '_blank');
+              window.open('https://rbc-digital-agency.replit.app/blog/' + slug, '_blank');
             }
             
             async function deletePost(id) {
