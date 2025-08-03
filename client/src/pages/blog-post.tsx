@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRoute } from 'wouter';
 import { format } from 'date-fns';
-import { Calendar, User, ArrowLeft, Share2, Loader2, Facebook, Twitter, Linkedin, Copy } from "lucide-react";
+import { Calendar, User, ArrowLeft, Share2, Loader2, Facebook, Twitter, Linkedin, Copy, Clock } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { AudioPlayer } from "../components/ui/audio-player";
@@ -41,6 +41,14 @@ export function BlogPostPage() {
   const [match, params] = useRoute('/blog/:slug');
   const slug = params?.slug;
   const { toast } = useToast();
+
+  // Calculate reading time based on content
+  const calculateReadingTime = (content: string): string => {
+    const wordsPerMinute = 200;
+    const words = content.trim().split(/\s+/).length;
+    const minutes = Math.ceil(words / wordsPerMinute);
+    return `${minutes} min read`;
+  };
 
   const { data: blogData, isLoading, error } = useQuery<{ data: BlogPost | null }>({
     queryKey: ['/api/blog/posts', slug],
@@ -170,6 +178,10 @@ export function BlogPostPage() {
                 <span>
                   {format(new Date(post.publishedAt || post.createdAt), 'MMMM d, yyyy')}
                 </span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                <span>{calculateReadingTime(post.content)}</span>
               </div>
             </div>
             
