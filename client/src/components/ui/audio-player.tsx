@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Mic, Speaker } from 'lucide-react';
 import { Button } from './button';
 
 interface AudioPlayerProps {
@@ -15,6 +15,9 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<number>(0);
+  const [speechRate, setSpeechRate] = useState(1);
   const audioRef = useRef<HTMLAudioElement>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -23,6 +26,18 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
     if ('speechSynthesis' in window) {
       setSpeechSupported(true);
       setIsLoading(false);
+      
+      // Load available voices
+      const loadVoices = () => {
+        const availableVoices = window.speechSynthesis.getVoices();
+        setVoices(availableVoices);
+        // Select first English voice or default
+        const englishVoice = availableVoices.findIndex(voice => voice.lang.startsWith('en'));
+        setSelectedVoice(englishVoice >= 0 ? englishVoice : 0);
+      };
+      
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
     } else if (audioUrl) {
       // Fallback to audio file if speech synthesis not supported
       const audio = audioRef.current;
@@ -122,7 +137,10 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
           .substring(0, 2000); // Limit length for performance
 
         const utterance = new SpeechSynthesisUtterance(cleanContent);
-        utterance.rate = 0.9;
+        if (voices[selectedVoice]) {
+          utterance.voice = voices[selectedVoice];
+        }
+        utterance.rate = speechRate;
         utterance.pitch = 1;
         
         utterance.onstart = () => {
@@ -182,8 +200,9 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
 
   const skipBack = () => {
     if (speechSupported && content) {
-      // For speech synthesis, restart from beginning
+      // For speech synthesis, decrease speed temporarily
       if (isSpeaking) {
+        setSpeechRate(prev => Math.max(0.5, prev - 0.25));
         window.speechSynthesis.cancel();
         setTimeout(() => togglePlayPause(), 100);
       }
@@ -197,8 +216,12 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
 
   const skipForward = () => {
     if (speechSupported && content) {
-      // For speech synthesis, we can't skip forward
-      return;
+      // For speech synthesis, increase speed temporarily
+      if (isSpeaking) {
+        setSpeechRate(prev => Math.min(2, prev + 0.25));
+        window.speechSynthesis.cancel();
+        setTimeout(() => togglePlayPause(), 100);
+      }
     } else {
       const audio = audioRef.current;
       if (audio) {
@@ -321,6 +344,71 @@ export function AudioPlayer({ audioUrl, title, content }: AudioPlayerProps) {
           )}
         </div>
       </div>
+
+      {/* Voice Controls for Text-to-Speech */}
+      {speechSupported && content && (
+        <div className="mt-4 pt-4 border-t border-blue-200 dark:border-slate-600">
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Voice Selection */}
+            <div className="flex items-center gap-2">
+              <Mic className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              <select
+                value={selectedVoice}
+                onChange={(e) => setSelectedVoice(Number(e.target.value))}
+                className="text-xs bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-2 py-1 text-slate-700 dark:text-slate-300"
+                data-testid="select-voice"
+              >
+                {voices.map((voice, index) => (
+                  <option key={index} value={index}>
+                    {voice.name} ({voice.lang})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Speed Control */}
+            <div className="flex items-center gap-2">
+              <Speaker className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              <div className="flex items-center gap-1">
+                <Button
+                  onClick={skipBack}
+                  variant="outline"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-xs"
+                  data-testid="button-speed-down"
+                  title="Slower"
+                >
+                  <SkipBack className="w-3 h-3" />
+                </Button>
+                <span className="text-xs text-slate-600 dark:text-slate-400 min-w-[3rem] text-center">
+                  {speechRate.toFixed(2)}x
+                </span>
+                <Button
+                  onClick={skipForward}
+                  variant="outline"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-xs"
+                  data-testid="button-speed-up"
+                  title="Faster"
+                >
+                  <SkipForward className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Reset Speed */}
+            <Button
+              onClick={() => setSpeechRate(1)}
+              variant="ghost"
+              size="sm"
+              className="text-xs h-6 px-2"
+              data-testid="button-speed-reset"
+            >
+              Reset Speed
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
