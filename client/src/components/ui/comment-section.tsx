@@ -183,7 +183,7 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
                   onChange={(e) => setNewComment(prev => ({ ...prev, author: e.target.value }))}
                   disabled={isSubmitting}
                   data-testid="input-comment-author"
-                  className="border-blue-300 dark:border-blue-600 focus:border-blue-500 focus:ring-blue-500 bg-white/80 dark:bg-slate-900/80 text-sm"
+                  className="border-blue-300 dark:border-blue-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm placeholder:text-slate-500 dark:placeholder:text-slate-400"
                 />
               </div>
               <div>
@@ -194,7 +194,7 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
                   onChange={(e) => setNewComment(prev => ({ ...prev, email: e.target.value }))}
                   disabled={isSubmitting}
                   data-testid="input-comment-email"
-                  className="border-blue-300 dark:border-blue-600 focus:border-blue-500 focus:ring-blue-500 bg-white/80 dark:bg-slate-900/80 text-sm"
+                  className="border-blue-300 dark:border-blue-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm placeholder:text-slate-500 dark:placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -206,7 +206,7 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
                 disabled={isSubmitting}
                 rows={3}
                 data-testid="textarea-comment-content"
-                className="border-blue-300 dark:border-blue-600 focus:border-blue-500 focus:ring-blue-500 bg-white/80 dark:bg-slate-900/80 resize-none text-sm"
+                className="border-blue-300 dark:border-blue-600 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white resize-none text-sm placeholder:text-slate-500 dark:placeholder:text-slate-400"
               />
             </div>
             <div className="flex justify-between items-center">
@@ -246,25 +246,28 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
           comments.map((comment, index) => (
             <div 
               key={comment.id} 
-              className="border-l-2 border-l-slate-300 dark:border-l-slate-600 pl-4 py-3 hover:border-l-blue-400 transition-colors duration-200" 
+              className="border-l-2 border-l-slate-200 dark:border-l-slate-700 pl-3 py-2 hover:border-l-blue-400 dark:hover:border-l-blue-500 transition-colors duration-200" 
               data-testid={`comment-${comment.id}`}
             >
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+                    <User className="w-3 h-3 text-slate-500 dark:text-slate-400" />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h5 className="font-medium text-slate-900 dark:text-white text-sm">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h5 className="font-medium text-slate-800 dark:text-slate-200 text-xs">
                       {comment.author}
                     </h5>
-                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                      •
+                    </span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
                       {formatDate(comment.createdAt)}
                     </span>
                   </div>
-                  <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+                  <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
                     {comment.content}
                   </p>
                 </div>
