@@ -1,5 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { createProxyMiddleware } from "http-proxy-middleware";
 import { storage } from "./storage";
 import { hubspotService } from "./hubspot";
 import { strapiService } from "./strapi";
@@ -273,6 +274,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Strapi Admin Panel Proxy - Access admin through main site
+  const strapiUrl = process.env.STRAPI_API_URL || 'http://localhost:1338';
+  
+  // Proxy Strapi admin panel to /admin path
+  app.use('/admin', createProxyMiddleware({
+    target: strapiUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      '^/admin': '/admin',
+    }
+  } as any));
+
+  // Proxy Strapi API calls to /strapi-api path  
+  app.use('/strapi-api', createProxyMiddleware({
+    target: strapiUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      '^/strapi-api': '/api',
+    }
+  } as any));
 
   const httpServer = createServer(app);
   return httpServer;
