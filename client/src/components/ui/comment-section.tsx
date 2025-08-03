@@ -172,16 +172,37 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
       {/* Admin Toggle */}
       <div className="flex items-center gap-2 mb-4">
         <button
-          onClick={() => setAdminMode(!adminMode)}
+          onClick={() => {
+            setAdminMode(!adminMode);
+            if (replyingTo) {
+              setReplyingTo(null);
+            }
+          }}
           className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs transition-colors ${
             adminMode 
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
+              ? 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700' 
               : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
           }`}
+          data-testid="admin-toggle"
         >
           <Shield className="w-3 h-3" />
-          {adminMode ? 'Admin Mode' : 'User Mode'}
+          {adminMode ? 'Admin Mode ON' : 'User Mode'}
         </button>
+        {replyingTo && (
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+            <Reply className="w-3 h-3" />
+            <span>Replying to comment</span>
+            <button
+              onClick={() => {
+                setReplyingTo(null);
+                setAdminMode(false);
+              }}
+              className="text-red-500 hover:text-red-600 ml-1"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Comment Form */}
@@ -213,7 +234,7 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="comment-form">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Input
@@ -289,7 +310,7 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
                 comment.isAdmin 
                   ? 'bg-gradient-to-r from-purple-50/50 to-indigo-50/50 dark:from-purple-900/20 dark:to-indigo-900/20 border-purple-200 dark:border-purple-700 hover:border-purple-300 dark:hover:border-purple-600'
                   : 'bg-slate-50/50 dark:bg-slate-800/30 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600'
-              } hover:bg-slate-50 dark:hover:bg-slate-800/50 ${comment.replyTo ? 'ml-8 border-l-4 border-l-blue-400' : ''}`}
+              } hover:bg-slate-50 dark:hover:bg-slate-800/50 ${comment.replyTo ? 'ml-8 border-l-4 border-l-blue-400 bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
               data-testid={`comment-${comment.id}`}
             >
               <div className="flex items-start gap-3">
@@ -342,11 +363,18 @@ export function CommentSection({ postSlug }: CommentSectionProps) {
                   {!comment.isAdmin && (
                     <button
                       onClick={() => {
+                        console.log('Reply button clicked for comment:', comment.id);
                         setReplyingTo(comment.id);
                         setAdminMode(true);
-                        document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' });
+                        setTimeout(() => {
+                          const form = document.querySelector('[data-testid="comment-form"]');
+                          if (form) {
+                            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }
+                        }, 100);
                       }}
-                      className="mt-2 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      className="mt-2 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors hover:bg-purple-50 dark:hover:bg-purple-900/20 px-2 py-1 rounded"
+                      data-testid={`reply-button-${comment.id}`}
                     >
                       <Reply className="w-3 h-3" />
                       Reply as Admin
