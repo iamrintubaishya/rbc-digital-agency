@@ -200,9 +200,11 @@ export function BlogPage() {
                         </div>
                       )}
                     </div>
-                    <CardTitle className="line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
-                      {post.title}
-                    </CardTitle>
+                    <Link href={`/blog/${post.slug}`}>
+                      <CardTitle className="line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight cursor-pointer hover:underline">
+                        {post.title}
+                      </CardTitle>
+                    </Link>
                     {post.excerpt && (
                       <CardDescription className="line-clamp-4 text-base leading-relaxed">
                         {post.excerpt}
