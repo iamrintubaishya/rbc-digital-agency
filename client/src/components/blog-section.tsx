@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Calendar, User, ArrowRight, ExternalLink } from "lucide-react";
+import { Calendar, User, ArrowRight, ExternalLink, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
@@ -16,6 +16,7 @@ interface BlogPost {
   coverImage?: string;
   publishedAt?: string;
   createdAt: string;
+  readingTime?: string;
 }
 
 interface BlogResponse {
@@ -165,6 +166,12 @@ export function BlogSection() {
                           {format(new Date(post.publishedAt || post.createdAt), 'MMM d, yyyy')}
                         </span>
                       </div>
+                      {post.readingTime && (
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Clock className="w-3 h-3 flex-shrink-0" />
+                          <span className="whitespace-nowrap text-xs">{post.readingTime}</span>
+                        </div>
+                      )}
                     </div>
                     <CardTitle className="line-clamp-2 text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors leading-snug text-base sm:text-lg break-words overflow-hidden">
                       {post.title}
