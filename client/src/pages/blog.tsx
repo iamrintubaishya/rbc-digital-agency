@@ -213,13 +213,10 @@ export function BlogPage() {
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0">
                     <Link href={`/blog/${post.slug}`}>
-                      <Button 
-                        variant="ghost" 
-                        className="group/btn w-full justify-between hover:bg-transparent text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 font-medium text-sm sm:text-base bg-transparent"
-                      >
+                      <div className="group/btn w-full flex items-center justify-between text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 font-medium text-sm sm:text-base cursor-pointer">
                         <span>Read Full Article</span>
                         <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform flex-shrink-0" />
-                      </Button>
+                      </div>
                     </Link>
                   </CardContent>
                 </Card>
