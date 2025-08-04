@@ -195,6 +195,11 @@ export function BlogSection() {
                     size="lg" 
                     variant="outline"
                     className="border-2 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-800 px-8 py-3 font-semibold text-base inline-flex items-center gap-2"
+                    onClick={() => {
+                      setTimeout(() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }, 100);
+                    }}
                   >
                     View All Articles
                     <ArrowRight className="w-4 h-4" />

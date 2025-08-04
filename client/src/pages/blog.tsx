@@ -215,7 +215,7 @@ export function BlogPage() {
                     <Link href={`/blog/${post.slug}`}>
                       <Button 
                         variant="ghost" 
-                        className="group/btn w-full justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-all duration-300"
+                        className="group/btn w-full justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-white hover:text-slate-900 dark:hover:text-white transition-all duration-300 font-medium"
                       >
                         <span>Read Full Article</span>
                         <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
