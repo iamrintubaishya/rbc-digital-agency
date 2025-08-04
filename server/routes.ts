@@ -140,15 +140,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Fallback to local database
-      const posts = await storage.getBlogPosts();
+      const allPosts = await storage.getBlogPosts();
+      const startIndex = (page - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const posts = allPosts.slice(startIndex, endIndex);
+      
       res.json({ 
         data: posts,
         meta: {
           pagination: {
-            page: 1,
-            pageSize: posts.length,
-            pageCount: 1,
-            total: posts.length,
+            page,
+            pageSize,
+            pageCount: Math.ceil(allPosts.length / pageSize),
+            total: allPosts.length,
           }
         }
       });
