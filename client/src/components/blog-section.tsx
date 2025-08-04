@@ -55,11 +55,11 @@ export function BlogSection() {
             <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded w-64 mx-auto mb-4 animate-pulse"></div>
             <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded w-80 mx-auto animate-pulse"></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6 max-w-7xl mx-auto">
             {[...Array(9)].map((_, i) => (
               <Card key={i} className="animate-pulse bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 max-w-sm mx-auto lg:max-w-none">
                 <div className="h-44 bg-slate-200 dark:bg-slate-700"></div>
-                <CardHeader className="pb-3 p-5">
+                <CardHeader className="pb-3 p-4 sm:p-5">
                   <div className="flex gap-2 mb-3">
                     <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-16"></div>
                     <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-20"></div>
@@ -139,7 +139,7 @@ export function BlogSection() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6 max-w-7xl mx-auto">
               {posts.map((post, index) => (
                 <Card key={post.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 max-w-sm mx-auto lg:max-w-none">
                   {post.coverImage && (
@@ -151,17 +151,17 @@ export function BlogSection() {
                       />
                     </div>
                   )}
-                  <CardHeader className="pb-3 p-5">
-                    <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  <CardHeader className="pb-3 p-4 sm:p-5">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 text-xs text-slate-500 dark:text-slate-400 mb-3">
                       {post.author && (
                         <div className="flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          <span>{post.author}</span>
+                          <User className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{post.author}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>
+                        <Calendar className="w-3 h-3 flex-shrink-0" />
+                        <span className="whitespace-nowrap">
                           {format(new Date(post.publishedAt || post.createdAt), 'MMM d, yyyy')}
                         </span>
                       </div>
@@ -175,7 +175,7 @@ export function BlogSection() {
                       </CardDescription>
                     )}
                   </CardHeader>
-                  <CardContent className="pt-0 px-5 pb-5">
+                  <CardContent className="pt-0 px-4 pb-4 sm:px-5 sm:pb-5">
                     <Link 
                       href={`/blog/${post.slug}`}
                       className="group/link inline-flex items-center text-slate-900 dark:text-white hover:text-slate-700 dark:hover:text-slate-200 font-medium transition-colors duration-200 text-sm"

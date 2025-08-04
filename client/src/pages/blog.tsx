@@ -166,7 +166,7 @@ export function BlogPage() {
                 </p>
               </div>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {filteredPosts.map((post) => (
                 <Card key={post.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
                   {post.coverImage && (
@@ -179,24 +179,24 @@ export function BlogPage() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                     </div>
                   )}
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-3">
+                  <CardHeader className="pb-4 p-4 sm:p-6">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-3">
                       {post.author && (
                         <div className="flex items-center gap-1">
-                          <User className="w-4 h-4" />
-                          <span>{post.author}</span>
+                          <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="truncate">{post.author}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                        <span className="whitespace-nowrap">
                           {format(new Date(post.publishedAt || post.createdAt || new Date()), 'MMM d, yyyy')}
                         </span>
                       </div>
                       {post.readingTime && (
                         <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{post.readingTime}</span>
+                          <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="whitespace-nowrap">{post.readingTime}</span>
                         </div>
                       )}
                     </div>
@@ -211,14 +211,14 @@ export function BlogPage() {
                       </CardDescription>
                     )}
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 sm:p-6 pt-0">
                     <Link href={`/blog/${post.slug}`}>
                       <Button 
                         variant="ghost" 
-                        className="group/btn w-full justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-white hover:text-slate-900 dark:hover:text-white transition-all duration-300 font-medium"
+                        className="group/btn w-full justify-between hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-white hover:text-slate-900 dark:hover:text-white transition-all duration-300 font-medium text-sm sm:text-base"
                       >
                         <span>Read Full Article</span>
-                        <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                        <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform flex-shrink-0" />
                       </Button>
                     </Link>
                   </CardContent>
