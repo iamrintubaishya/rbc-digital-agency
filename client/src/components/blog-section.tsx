@@ -34,7 +34,7 @@ export function BlogSection() {
   const { data: blogData, isLoading, error } = useQuery<BlogResponse>({
     queryKey: ['/api/blog/posts'],
     queryFn: async () => {
-      const response = await fetch('/api/blog/posts?pageSize=6');
+      const response = await fetch('/api/blog/posts?pageSize=9');
       if (!response.ok) {
         throw new Error('Failed to fetch blog posts');
       }
@@ -57,7 +57,7 @@ export function BlogSection() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(9)].map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <div className="h-48 bg-slate-200 dark:bg-slate-700 rounded-t-lg"></div>
                 <CardHeader>
@@ -170,7 +170,7 @@ export function BlogSection() {
               ))}
             </div>
 
-            {posts.length >= 6 && (
+            {posts.length >= 9 && (
               <div className="text-center mt-12">
                 <Link href="/blog">
                   <Button size="lg" variant="outline">
