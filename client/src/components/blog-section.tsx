@@ -194,10 +194,10 @@ export function BlogSection() {
                   <Button 
                     size="lg" 
                     variant="outline"
-                    className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 px-6 py-3"
+                    className="border-2 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 bg-white dark:bg-slate-800 px-8 py-3 font-semibold text-base inline-flex items-center gap-2"
                   >
                     View All Articles
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
               </div>
