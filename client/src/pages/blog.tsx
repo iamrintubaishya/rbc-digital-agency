@@ -168,7 +168,7 @@ export function BlogPage() {
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               {filteredPosts.map((post) => (
-                <Card key={post.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <Card key={post.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden w-full h-fit">
                   {post.coverImage && (
                     <div className="relative h-48 overflow-hidden">
                       <img
@@ -182,31 +182,31 @@ export function BlogPage() {
                   <CardHeader className="pb-4 p-4 sm:p-6">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-3">
                       {post.author && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 min-w-0">
                           <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">{post.author}</span>
+                          <span className="truncate text-xs sm:text-sm">{post.author}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 min-w-0">
                         <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                        <span className="whitespace-nowrap">
+                        <span className="whitespace-nowrap text-xs sm:text-sm">
                           {format(new Date(post.publishedAt || post.createdAt || new Date()), 'MMM d, yyyy')}
                         </span>
                       </div>
                       {post.readingTime && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 min-w-0">
                           <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="whitespace-nowrap">{post.readingTime}</span>
+                          <span className="whitespace-nowrap text-xs sm:text-sm">{post.readingTime}</span>
                         </div>
                       )}
                     </div>
                     <Link href={`/blog/${post.slug}`}>
-                      <CardTitle className="line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight cursor-pointer hover:underline">
+                      <CardTitle className="line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight cursor-pointer hover:underline text-base sm:text-lg break-words overflow-hidden">
                         {post.title}
                       </CardTitle>
                     </Link>
                     {post.excerpt && (
-                      <CardDescription className="line-clamp-4 text-base leading-relaxed">
+                      <CardDescription className="line-clamp-3 text-sm sm:text-base leading-relaxed break-words overflow-hidden">
                         {post.excerpt}
                       </CardDescription>
                     )}

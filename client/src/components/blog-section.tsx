@@ -141,7 +141,7 @@ export function BlogSection() {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6 max-w-7xl mx-auto">
               {posts.map((post, index) => (
-                <Card key={post.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 max-w-sm mx-auto lg:max-w-none">
+                <Card key={post.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 w-full max-w-sm mx-auto lg:max-w-none h-fit">
                   {post.coverImage && (
                     <div className="relative h-44 overflow-hidden">
                       <img
@@ -154,23 +154,23 @@ export function BlogSection() {
                   <CardHeader className="pb-3 p-4 sm:p-5">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 text-xs text-slate-500 dark:text-slate-400 mb-3">
                       {post.author && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 min-w-0">
                           <User className="w-3 h-3 flex-shrink-0" />
-                          <span className="truncate">{post.author}</span>
+                          <span className="truncate text-xs">{post.author}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 min-w-0">
                         <Calendar className="w-3 h-3 flex-shrink-0" />
-                        <span className="whitespace-nowrap">
+                        <span className="whitespace-nowrap text-xs">
                           {format(new Date(post.publishedAt || post.createdAt), 'MMM d, yyyy')}
                         </span>
                       </div>
                     </div>
-                    <CardTitle className="line-clamp-2 text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors leading-snug text-lg">
+                    <CardTitle className="line-clamp-2 text-slate-900 dark:text-white group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors leading-snug text-base sm:text-lg break-words overflow-hidden">
                       {post.title}
                     </CardTitle>
                     {post.excerpt && (
-                      <CardDescription className="line-clamp-2 text-slate-600 dark:text-slate-400 text-sm">
+                      <CardDescription className="line-clamp-3 text-slate-600 dark:text-slate-400 text-xs sm:text-sm break-words overflow-hidden">
                         {post.excerpt}
                       </CardDescription>
                     )}
