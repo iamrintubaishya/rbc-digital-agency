@@ -1,9 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { createProxyMiddleware } from "http-proxy-middleware";
 import { storage } from "./storage";
 import { hubspotService } from "./hubspot";
-import { strapiService } from "./strapi";
 import { insertContactSchema, insertBookingSchema, insertBlogPostSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -23,6 +21,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: error.errors 
         });
       } else {
+        console.error('Contact form error:', error);
         res.status(500).json({ 
           success: false, 
           message: "Failed to submit contact form" 
@@ -75,6 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: error.errors 
         });
       } else {
+        console.error('Booking creation error:', error);
         res.status(500).json({ 
           success: false, 
           message: "Failed to create booking" 
@@ -109,37 +109,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Blog API routes with Strapi integration
+  // Blog API routes - using local database only
   app.get("/api/blog/posts", async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const pageSize = parseInt(req.query.pageSize as string) || 10;
       
-      // Try to fetch from Strapi first
-      if (strapiService.isEnabled()) {
-        try {
-          const strapiResponse = await strapiService.getArticles({
-            page,
-            pageSize,
-            sort: ['publishedAt:desc'],
-            populate: ['cover'],
-          });
-          
-          if (strapiResponse.data.length > 0) {
-            // Sync articles to database
-            for (const article of strapiResponse.data) {
-              await strapiService.syncArticleToDatabase(article, await import('./db').then(m => m.db));
-            }
-          }
-          
-          res.json(strapiResponse);
-          return;
-        } catch (strapiError) {
-          console.warn('Strapi integration failed, falling back to local database:', strapiError);
-        }
-      }
-      
-      // Fallback to local database
       const allPosts = await storage.getBlogPosts();
       const startIndex = (page - 1) * pageSize;
       const endIndex = startIndex + pageSize;
@@ -169,22 +144,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { slug } = req.params;
       
-      // Try Strapi first
-      if (strapiService.isEnabled()) {
-        try {
-          const strapiResponse = await strapiService.getArticleBySlug(slug);
-          if (strapiResponse.data) {
-            // Sync article to database
-            await strapiService.syncArticleToDatabase(strapiResponse.data, await import('./db').then(m => m.db));
-            res.json(strapiResponse);
-            return;
-          }
-        } catch (strapiError) {
-          console.warn('Strapi integration failed, falling back to local database:', strapiError);
-        }
-      }
-      
-      // Fallback to local database
       const post = await storage.getBlogPostBySlug(slug);
       if (!post) {
         res.status(404).json({ 
@@ -207,20 +166,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertBlogPostSchema.parse(req.body);
       
-      // Create in Strapi first if available
-      if (strapiService.isEnabled()) {
-        try {
-          const strapiResponse = await strapiService.createArticle(validatedData);
-          // Sync to local database
-          await strapiService.syncArticleToDatabase(strapiResponse.data, await import('./db').then(m => m.db));
-          res.json({ success: true, post: strapiResponse.data });
-          return;
-        } catch (strapiError) {
-          console.warn('Strapi creation failed, creating in local database:', strapiError);
-        }
-      }
-      
-      // Fallback to local database
       const post = await storage.createBlogPost(validatedData);
       res.json({ success: true, post });
     } catch (error) {
@@ -231,6 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: error.errors 
         });
       } else {
+        console.error('Blog post creation error:', error);
         res.status(500).json({ 
           success: false, 
           message: "Failed to create blog post" 
@@ -239,66 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Sync endpoint to pull articles from Strapi
-  app.post("/api/blog/sync", async (req, res) => {
-    if (!strapiService.isEnabled()) {
-      res.status(400).json({
-        success: false,
-        message: "Strapi integration not configured"
-      });
-      return;
-    }
 
-    try {
-      const strapiResponse = await strapiService.getArticles({
-        pageSize: 100,
-        populate: ['cover'],
-      });
-      
-      let syncCount = 0;
-      for (const article of strapiResponse.data) {
-        try {
-          await strapiService.syncArticleToDatabase(article, await import('./db').then(m => m.db));
-          syncCount++;
-        } catch (syncError) {
-          console.error(`Failed to sync article ${article.id}:`, syncError);
-        }
-      }
-      
-      res.json({ 
-        success: true, 
-        message: `Synced ${syncCount} articles from Strapi`,
-        syncedCount: syncCount,
-        totalArticles: strapiResponse.data.length
-      });
-    } catch (error) {
-      res.status(500).json({ 
-        success: false, 
-        message: "Failed to sync articles from Strapi" 
-      });
-    }
-  });
-
-  // Strapi Admin Panel Proxy - Access admin through main site
-  const strapiUrl = process.env.STRAPI_API_URL || 'http://localhost:1338';
-  
-  // Proxy Strapi admin panel to /admin path
-  app.use('/admin', createProxyMiddleware({
-    target: strapiUrl,
-    changeOrigin: true,
-    pathRewrite: {
-      '^/admin': '/admin',
-    }
-  } as any));
-
-  // Proxy Strapi API calls to /strapi-api path  
-  app.use('/strapi-api', createProxyMiddleware({
-    target: strapiUrl,
-    changeOrigin: true,
-    pathRewrite: {
-      '^/strapi-api': '/api',
-    }
-  } as any));
 
   const httpServer = createServer(app);
   return httpServer;
