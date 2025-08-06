@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (method === 'OPTIONS') {
@@ -73,6 +73,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
           }
         });
+      }
+    }
+
+    // Update blog post by slug
+    if (method === 'PATCH' && path.includes('/blog/posts/')) {
+      const slug = path.split('/blog/posts/')[1].split('?')[0];
+      const existingPost = await storageInstance.getBlogPostBySlug(slug);
+      if (!existingPost) {
+        return res.status(404).json({ success: false, message: 'Blog post not found' });
+      }
+      
+      const updatedPost = await storageInstance.updateBlogPost(existingPost.id, req.body);
+      if (updatedPost) {
+        return res.json({ success: true, data: updatedPost });
+      } else {
+        return res.status(404).json({ success: false, message: 'Blog post not found' });
       }
     }
 

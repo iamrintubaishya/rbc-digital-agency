@@ -232,8 +232,8 @@ export class MemStorage implements IStorage {
 
     const samplePosts = [
       {
-        title: "5 Digital Marketing Trends That Will Dominate 2025",
-        slug: "5-digital-marketing-trends-2025",
+        title: "5 Digital Marketing Strategies That Drive Local Business Growth",
+        slug: "5-digital-marketing-strategies-local-business-growth",
         coverImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
         contentImages: [
           "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",

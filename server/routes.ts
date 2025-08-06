@@ -164,6 +164,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update blog post (for fixing images)
+  app.patch("/api/blog/posts/:slug", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      
+      // First get the post to get its ID
+      const existingPost = await storageInstance.getBlogPostBySlug(slug);
+      if (!existingPost) {
+        return res.status(404).json({ success: false, message: 'Blog post not found' });
+      }
+      
+      const updatedPost = await storageInstance.updateBlogPost(existingPost.id, req.body);
+      if (updatedPost) {
+        res.json({ success: true, data: updatedPost });
+      } else {
+        res.status(404).json({ success: false, message: 'Blog post not found' });
+      }
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  });
+
   app.post("/api/blog/posts", async (req, res) => {
     try {
       const validatedData = insertBlogPostSchema.parse(req.body);
