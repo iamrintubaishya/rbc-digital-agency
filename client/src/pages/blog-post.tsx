@@ -53,27 +53,18 @@ export function BlogPostPage() {
   const { data: blogData, isLoading, error } = useQuery<{ data: BlogPost }>({
     queryKey: ['/api/blog/posts', slug],
     queryFn: async () => {
-      console.log('Fetching blog post with slug:', slug);
       const response = await fetch(`/api/blog/posts/${slug}`);
-      console.log('Response status:', response.status);
       if (!response.ok) {
-        const errorData = await response.text();
-        console.log('Error response:', errorData);
         throw new Error(`Failed to fetch blog post: ${response.status}`);
       }
-      const data = await response.json();
-      console.log('Blog post data:', data);
-      return data;
+      return response.json();
     },
     enabled: !!slug,
+    retry: 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const post = blogData?.data;
-  
-  console.log('blogData:', blogData);
-  console.log('post:', post);
-  console.log('isLoading:', isLoading);
-  console.log('error:', error);
 
   if (isLoading) {
     return (
