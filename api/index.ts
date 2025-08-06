@@ -17,25 +17,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Await storage initialization
+    const storageInstance = await storage;
+
     if (method === 'POST' && path.includes('/contacts')) {
       const validatedData = insertContactSchema.parse(req.body);
-      const contact = await storage.createContact(validatedData);
+      const contact = await storageInstance.createContact(validatedData);
       return res.json({ success: true, contact });
     }
 
     if (method === 'POST' && path.includes('/bookings')) {
       const validatedData = insertBookingSchema.parse(req.body);
-      const booking = await storage.createBooking(validatedData);
+      const booking = await storageInstance.createBooking(validatedData);
       return res.json({ success: true, booking });
     }
 
     if (method === 'GET' && path.includes('/contacts')) {
-      const contacts = await storage.getContacts();
+      const contacts = await storageInstance.getContacts();
       return res.json(contacts);
     }
 
     if (method === 'GET' && path.includes('/bookings')) {
-      const bookings = await storage.getBookings();
+      const bookings = await storageInstance.getBookings();
       return res.json(bookings);
     }
 
@@ -44,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (path.includes('/blog/posts/') && !path.endsWith('/blog/posts/')) {
         // Individual blog post by slug
         const slug = path.split('/blog/posts/')[1].split('?')[0];
-        const post = await storage.getBlogPostBySlug(slug);
+        const post = await storageInstance.getBlogPostBySlug(slug);
         if (post) {
           return res.json({ data: post });
         } else {
@@ -52,7 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       } else {
         // List blog posts
-        const posts = await storage.getBlogPosts();
+        const posts = await storageInstance.getBlogPosts();
         return res.json({ 
           data: posts,
           meta: {
