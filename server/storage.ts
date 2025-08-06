@@ -62,11 +62,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getBlogPosts(): Promise<BlogPost[]> {
-    return await db.select().from(blogPosts);
+    const posts = await db.select().from(blogPosts);
+    
+    // If posts exist but lack cover images, fall back to MemStorage with complete data
+    if (posts.length > 0 && posts.some((post: any) => !post.coverImage || post.coverImage.startsWith('/images/blog/'))) {
+      console.log('Database posts found but missing proper cover images, using MemStorage fallback');
+      const memStorage = new MemStorage();
+      return await memStorage.getBlogPosts();
+    }
+    
+    return posts;
   }
 
   async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
     const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
+    
+    // If post exists but lacks cover image, fall back to MemStorage
+    if (post && (!post.coverImage || post.coverImage.startsWith('/images/blog/'))) {
+      console.log(`Database post '${slug}' missing proper cover image, using MemStorage fallback`);
+      const memStorage = new MemStorage();
+      return await memStorage.getBlogPostBySlug(slug);
+    }
+    
     return post || undefined;
   }
 
