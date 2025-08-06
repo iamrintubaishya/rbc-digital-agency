@@ -468,9 +468,14 @@ async function createStorage(): Promise<IStorage> {
       return new MemStorage();
     }
   } else {
-    console.log('No DATABASE_URL found - using MemStorage');
+    console.log('No DATABASE_URL found - using MemStorage with full blog content');
     return new MemStorage();
   }
+}
+
+// Create a synchronous storage getter for production environments
+export function createMemStorageSync(): MemStorage {
+  return new MemStorage();
 }
 
 // Initialize storage with fallback

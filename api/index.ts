@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../server/storage.js';
+import { storage, createMemStorageSync } from '../server/storage.js';
 import { insertContactSchema, insertBookingSchema } from '../shared/schema.js';
 import { z } from 'zod';
 
@@ -91,10 +91,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (path.includes('/blog/posts/') && !path.endsWith('/blog/posts/')) {
         // Individual blog post by slug
         const slug = path.split('/blog/posts/')[1].split('?')[0];
+        console.log(`[Vercel] Fetching blog post: ${slug}`);
         const post = await storageInstance.getBlogPostBySlug(slug);
         if (post) {
           return res.json({ data: post });
         } else {
+          console.log(`[Vercel] Blog post not found: ${slug}`);
           return res.status(404).json({ success: false, message: 'Blog post not found' });
         }
       } else {
@@ -102,9 +104,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const url = new URL(req.url || '', `http://${req.headers.host}`);
         const pageSize = parseInt(url.searchParams.get('pageSize') || '0');
         let allPosts = await storageInstance.getBlogPosts();
+        console.log(`[Vercel] Blog posts found: ${allPosts.length}`);
         
-        // Auto-sync missing posts if database has fewer than expected
-        if (allPosts.length < 5 && process.env.DATABASE_URL) {
+        // Force initialization if no posts found (production fallback)
+        if (allPosts.length === 0) {
+          console.log('[Vercel] No posts found, forcing MemStorage initialization');
+          try {
+            const memStorage = createMemStorageSync();
+            allPosts = await memStorage.getBlogPosts();
+            console.log(`[Vercel] MemStorage initialized with ${allPosts.length} posts`);
+          } catch (error) {
+            console.error('[Vercel] MemStorage initialization failed:', error);
+          }
+        }
+        
+        // Auto-sync missing posts if database exists but has fewer than expected
+        if (allPosts.length > 0 && allPosts.length < 10 && process.env.DATABASE_URL) {
           try {
             console.log('Auto-sync triggered: found', allPosts.length, 'posts, populating missing ones');
             
