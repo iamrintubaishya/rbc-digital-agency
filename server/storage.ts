@@ -118,6 +118,104 @@ export class MemStorage implements IStorage {
     this.initializeSampleBlogPosts();
   }
 
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    for (const user of this.users.values()) {
+      if (user.username === username) {
+        return user;
+      }
+    }
+    return undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const user: User = {
+      id: randomUUID(),
+      ...insertUser,
+    };
+    this.users.set(user.id, user);
+    return user;
+  }
+
+  async createContact(insertContact: InsertContact): Promise<Contact> {
+    const contact: Contact = {
+      id: randomUUID(),
+      ...insertContact,
+      createdAt: new Date(),
+    };
+    this.contacts.set(contact.id, contact);
+    return contact;
+  }
+
+  async createBooking(insertBooking: InsertBooking & { hubspotContactId?: string }): Promise<Booking> {
+    const booking: Booking = {
+      id: randomUUID(),
+      name: insertBooking.name,
+      email: insertBooking.email,
+      preferredDate: insertBooking.preferredDate || null,
+      hubspotContactId: insertBooking.hubspotContactId || null,
+      createdAt: new Date(),
+    };
+    this.bookings.set(booking.id, booking);
+    return booking;
+  }
+
+  async getContacts(): Promise<Contact[]> {
+    return Array.from(this.contacts.values());
+  }
+
+  async getBookings(): Promise<Booking[]> {
+    return Array.from(this.bookings.values());
+  }
+
+  async getBlogPosts(): Promise<BlogPost[]> {
+    return Array.from(this.blogPosts.values());
+  }
+
+  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    for (const post of this.blogPosts.values()) {
+      if (post.slug === slug) {
+        return post;
+      }
+    }
+    return undefined;
+  }
+
+  async createBlogPost(insertBlogPost: InsertBlogPost): Promise<BlogPost> {
+    const post: BlogPost = {
+      id: randomUUID(),
+      ...insertBlogPost,
+      contentImages: insertBlogPost.contentImages || [],
+      tags: insertBlogPost.tags || [],
+      publishedAt: insertBlogPost.publishedAt ? new Date(insertBlogPost.publishedAt) : null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.blogPosts.set(post.id, post);
+    return post;
+  }
+
+  async updateBlogPost(id: string, updateData: Partial<InsertBlogPost>): Promise<BlogPost | undefined> {
+    const existing = this.blogPosts.get(id);
+    if (!existing) return undefined;
+
+    const updated: BlogPost = {
+      ...existing,
+      ...updateData,
+      publishedAt: updateData.publishedAt ? new Date(updateData.publishedAt) : existing.publishedAt,
+      updatedAt: new Date(),
+    };
+    this.blogPosts.set(id, updated);
+    return updated;
+  }
+
+  async deleteBlogPost(id: string): Promise<boolean> {
+    return this.blogPosts.delete(id);
+  }
+
   private initializeSampleBlogPosts() {
     // Calculate reading time (average 200 words per minute)
     const calculateReadingTime = (content: string): string => {
@@ -410,7 +508,24 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use DatabaseStorage if DATABASE_URL is available, otherwise fallback to MemStorage
-export const storage = process.env.DATABASE_URL 
-  ? new DatabaseStorage() 
-  : new MemStorage();
+// Smart storage initialization with fallback handling
+async function createStorage(): Promise<IStorage> {
+  if (process.env.DATABASE_URL) {
+    try {
+      const dbStorage = new DatabaseStorage();
+      // Test the connection by trying to fetch blog posts
+      await dbStorage.getBlogPosts();
+      console.log('✓ Database connection successful - using DatabaseStorage');
+      return dbStorage;
+    } catch (error) {
+      console.warn('Database connection failed, falling back to MemStorage:', error.message);
+      return new MemStorage();
+    }
+  } else {
+    console.log('No DATABASE_URL found - using MemStorage');
+    return new MemStorage();
+  }
+}
+
+// Initialize storage with fallback
+export const storage = await createStorage();
