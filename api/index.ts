@@ -54,8 +54,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(404).json({ success: false, message: 'Blog post not found' });
         }
       } else {
-        // List blog posts
-        const posts = await storageInstance.getBlogPosts();
+        // List blog posts with pagination support
+        const url = new URL(req.url || '', `http://${req.headers.host}`);
+        const pageSize = parseInt(url.searchParams.get('pageSize') || '0');
+        const allPosts = await storageInstance.getBlogPosts();
+        
+        // Limit posts if pageSize is specified
+        const posts = pageSize > 0 ? allPosts.slice(0, pageSize) : allPosts;
+        
         return res.json({ 
           data: posts,
           meta: {
@@ -63,7 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               page: 1,
               pageSize: posts.length,
               pageCount: 1,
-              total: posts.length,
+              total: allPosts.length,
             }
           }
         });
