@@ -41,12 +41,6 @@ export function BlogPostPage() {
   const [match, params] = useRoute('/blog/:slug');
   const slug = params?.slug;
   const { toast } = useToast();
-  
-  // Debug logging
-  console.log('BlogPostPage rendered - Route match:', match);
-  console.log('BlogPostPage rendered - Params:', params);
-  console.log('BlogPostPage rendered - Slug:', slug);
-  console.log('BlogPostPage rendered - URL:', window.location.href);
 
   // Calculate reading time based on content
   const calculateReadingTime = (content: string): string => {
@@ -59,34 +53,18 @@ export function BlogPostPage() {
   const { data: blogData, isLoading, error } = useQuery<{ data: BlogPost }>({
     queryKey: ['/api/blog/posts', slug],
     queryFn: async () => {
-      console.log('Fetching blog post with slug:', slug);
-      console.log('API URL:', `/api/blog/posts/${slug}`);
       const response = await fetch(`/api/blog/posts/${slug}`);
-      console.log('Response status:', response.status);
-      console.log('Response OK:', response.ok);
       if (!response.ok) {
-        const errorText = await response.text();
-        console.log('Error response text:', errorText);
         throw new Error(`Failed to fetch blog post: ${response.status}`);
       }
-      const data = await response.json();
-      console.log('Successfully fetched blog data:', data);
-      return data;
+      return response.json();
     },
     enabled: !!slug,
-    retry: 2,
+    retry: 3,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const post = blogData?.data;
-  
-  console.log('BlogPostPage state:', { 
-    isLoading, 
-    error: error?.message, 
-    hasData: !!blogData, 
-    hasPost: !!post,
-    postTitle: post?.title 
-  });
 
   if (isLoading) {
     return (
