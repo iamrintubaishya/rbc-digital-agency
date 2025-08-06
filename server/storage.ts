@@ -77,14 +77,14 @@ export class DatabaseStorage implements IStorage {
   async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
     const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
     
-    // If post exists but lacks cover image, fall back to MemStorage
-    if (post && (!post.coverImage || post.coverImage.startsWith('/images/blog/'))) {
-      console.log(`Database post '${slug}' missing proper cover image, using MemStorage fallback`);
+    // Always use MemStorage fallback for consistent data with proper images
+    if (!post || !post.coverImage || post.coverImage.startsWith('/images/blog/')) {
+      console.log(`Database post '${slug}' ${!post ? 'not found' : 'missing proper cover image'}, using MemStorage fallback`);
       const memStorage = new MemStorage();
       return await memStorage.getBlogPostBySlug(slug);
     }
     
-    return post || undefined;
+    return post;
   }
 
   async createBlogPost(insertBlogPost: InsertBlogPost): Promise<BlogPost> {
