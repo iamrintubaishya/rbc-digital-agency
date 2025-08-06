@@ -54,10 +54,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(404).json({ success: false, message: 'Blog post not found' });
         }
       } else {
-        // List blog posts with pagination support
+        // List blog posts with pagination support  
         const url = new URL(req.url || '', `http://${req.headers.host}`);
         const pageSize = parseInt(url.searchParams.get('pageSize') || '0');
-        const allPosts = await storageInstance.getBlogPosts();
+        let allPosts = await storageInstance.getBlogPosts();
+        
+        // Auto-sync missing posts if database has fewer than expected
+        if (allPosts.length < 10 && process.env.DATABASE_URL) {
+          try {
+            const { MemStorage } = await import('../server/storage.js');
+            const memStorage = new MemStorage();
+            const memPosts = await memStorage.getBlogPosts();
+            
+            for (const memPost of memPosts) {
+              const existing = allPosts.find(p => p.slug === memPost.slug);
+              if (!existing) {
+                await storageInstance.createBlogPost({
+                  title: memPost.title,
+                  slug: memPost.slug,
+                  content: memPost.content,
+                  excerpt: memPost.excerpt ?? undefined,
+                  author: memPost.author ?? undefined,
+                  coverImage: memPost.coverImage ?? undefined,
+                  contentImages: memPost.contentImages ?? undefined,
+                  audioUrl: memPost.audioUrl ?? undefined,
+                  readingTime: memPost.readingTime ?? undefined,
+                  tags: memPost.tags ?? undefined,
+                  publishedAt: memPost.publishedAt?.toISOString(),
+                });
+              }
+            }
+            allPosts = await storageInstance.getBlogPosts();
+          } catch (error) {
+            console.warn('Auto-sync failed:', error);
+          }
+        }
         
         // Limit posts if pageSize is specified
         const posts = pageSize > 0 ? allPosts.slice(0, pageSize) : allPosts;
