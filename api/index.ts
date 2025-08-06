@@ -42,6 +42,50 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json(bookings);
     }
 
+    // Blog sync endpoint for production fixes
+    if (method === 'POST' && path === '/api/blog/sync') {
+      try {
+        const allPosts = await storageInstance.getBlogPosts();
+        console.log('Sync endpoint called, current posts:', allPosts.length);
+        
+        if (allPosts.length < 10) {
+          // Force population of missing posts
+          const requiredPosts = [
+            {
+              title: "The Complete Guide to Local SEO for Service Businesses",
+              slug: "complete-guide-local-seo-service-businesses",
+              content: "Local SEO is the foundation of digital marketing success for service-based businesses...",
+              excerpt: "Master local SEO strategies that help service businesses dominate their geographic markets.",
+              author: "Michael Rodriguez",
+              publishedAt: "2024-12-01T00:00:00.000Z"
+            },
+            {
+              title: "Analytics and Data-Driven Marketing: Making Smarter Decisions", 
+              slug: "analytics-data-driven-marketing-decisions",
+              content: "In today's competitive landscape, successful marketing relies heavily on data-driven decision making...",
+              excerpt: "Learn how to leverage analytics and data science to make smarter marketing decisions.",
+              author: "Dr. Sarah Kim",
+              publishedAt: "2024-11-25T00:00:00.000Z"
+            }
+          ];
+          
+          for (const post of requiredPosts) {
+            const existing = allPosts.find(p => p.slug === post.slug);
+            if (!existing) {
+              await storageInstance.createBlogPost(post);
+              console.log('Created missing post:', post.title);
+            }
+          }
+        }
+        
+        const finalPosts = await storageInstance.getBlogPosts();
+        return res.json({ success: true, message: `Sync complete. Total posts: ${finalPosts.length}` });
+      } catch (error) {
+        console.error('Sync failed:', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
+    }
+
     // Blog API endpoints
     if (method === 'GET' && path.includes('/blog/posts')) {
       if (path.includes('/blog/posts/') && !path.endsWith('/blog/posts/')) {
@@ -60,15 +104,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let allPosts = await storageInstance.getBlogPosts();
         
         // Auto-sync missing posts if database has fewer than expected
-        if (allPosts.length < 10 && process.env.DATABASE_URL) {
+        if (allPosts.length < 5 && process.env.DATABASE_URL) {
           try {
-            const { MemStorage } = await import('../server/storage.js');
+            console.log('Auto-sync triggered: found', allPosts.length, 'posts, populating missing ones');
+            
+            // Use the MemStorage approach for fallback
+            const { MemStorage } = require('../server/storage.js');
             const memStorage = new MemStorage();
             const memPosts = await memStorage.getBlogPosts();
             
             for (const memPost of memPosts) {
               const existing = allPosts.find(p => p.slug === memPost.slug);
               if (!existing) {
+                console.log('Adding missing post:', memPost.title);
                 await storageInstance.createBlogPost({
                   title: memPost.title,
                   slug: memPost.slug,
@@ -85,6 +133,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               }
             }
             allPosts = await storageInstance.getBlogPosts();
+            console.log('Auto-sync completed, now have', allPosts.length, 'posts');
           } catch (error) {
             console.warn('Auto-sync failed:', error);
           }

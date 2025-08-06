@@ -247,7 +247,7 @@ export class MemStorage implements IStorage {
       return `${minutes} min read`;
     };
 
-    const samplePosts = [
+const samplePosts = [
       {
         title: "5 Digital Marketing Strategies That Drive Local Business Growth",
         slug: "5-digital-marketing-strategies-local-business-growth",
