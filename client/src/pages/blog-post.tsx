@@ -50,7 +50,7 @@ export function BlogPostPage() {
     return `${minutes} min read`;
   };
 
-  const { data: blogData, isLoading, error } = useQuery<{ data: BlogPost | null }>({
+  const { data: blogData, isLoading, error } = useQuery<{ data: BlogPost }>({
     queryKey: ['/api/blog/posts', slug],
     queryFn: async () => {
       const response = await fetch(`/api/blog/posts/${slug}`);
@@ -75,7 +75,7 @@ export function BlogPostPage() {
     );
   }
 
-  if (error || !post) {
+  if (error) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
@@ -98,6 +98,17 @@ export function BlogPostPage() {
               </Link>
             </Button>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-slate-600 dark:text-slate-400">Loading article...</p>
         </div>
       </div>
     );
