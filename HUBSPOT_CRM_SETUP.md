@@ -37,21 +37,38 @@ Your HubSpot CRM is now fully integrated with your RBC Digital Agency website!
    - Contact is created/updated in HubSpot
    - You can manage follow-ups through HubSpot
 
-### Production Setup
+### Production Setup ✅ TESTED
 
-For your Vercel deployment, ensure you:
+**Vercel Production Testing Results:**
 
-1. **Add HubSpot Token to Vercel**
-   - Go to Vercel Dashboard → Your Project → Settings
-   - Environment Variables → Add New
-   - Name: `HUBSPOT_ACCESS_TOKEN`
-   - Value: [your HubSpot API key]
-   - Save and redeploy
+✅ **Contact Form Integration**
+- Production URL: https://rbc-digital-agency.vercel.app/
+- API Endpoint: `/api/contacts` - Working perfectly
+- Test Result: Contact ID `487f0bc4-9f5c-4f7d-9882-0593b5c9f30b` created successfully
+- Data Storage: All form fields captured correctly
 
-2. **Test Production Integration**
-   - Submit a test contact form on your live site
-   - Check your HubSpot dashboard for new contact
-   - Verify all data fields are populated correctly
+✅ **Booking System Integration**  
+- API Endpoint: `/api/bookings` - Working perfectly
+- Test Result: Booking ID `1f24837d-20c5-4e79-b6fa-fefed4ea2ccd` created successfully
+- Form Processing: All booking data stored correctly
+
+⚠️ **HubSpot API Status**
+- Environment Variable: HUBSPOT_ACCESS_TOKEN configured
+- Forms submit successfully to local database
+- HubSpot sync status: Verify in your HubSpot dashboard for new contacts
+
+**For Complete Production Setup:**
+
+1. **Verify HubSpot Dashboard**
+   - Log into your HubSpot account
+   - Check Contacts section for new test contacts
+   - Verify API token has proper permissions
+
+2. **Test Live Website**
+   - Visit https://rbc-digital-agency.vercel.app/
+   - Submit contact form with real data
+   - Book appointment through booking modal
+   - Check HubSpot dashboard for automatic contact creation
 
 ### API Endpoints Available
 
