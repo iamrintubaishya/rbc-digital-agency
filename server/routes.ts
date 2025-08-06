@@ -17,8 +17,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let hubspotContactId: string | undefined;
       
       // Try to create contact in HubSpot
+      console.log('🔍 HubSpot service enabled:', hubspotService.isEnabled());
+      console.log('🔍 Environment token present:', !!process.env.HUBSPOT_ACCESS_TOKEN);
+      
       if (hubspotService.isEnabled()) {
         try {
+          console.log('📝 Creating HubSpot contact with data:', {
+            email: validatedData.email,
+            firstname: validatedData.firstName,
+            lastname: validatedData.lastName,
+            phone: validatedData.phone,
+            company: validatedData.businessType,
+          });
+          
           const hubspotContact = await hubspotService.createContact({
             email: validatedData.email,
             firstname: validatedData.firstName,
@@ -26,12 +37,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             phone: validatedData.phone,
             company: validatedData.businessType,
           });
+          
           hubspotContactId = hubspotContact.id;
-          console.log('✅ HubSpot contact created:', hubspotContactId);
+          console.log('✅ HubSpot contact created successfully:', hubspotContactId);
         } catch (hubspotError) {
-          console.warn('HubSpot integration failed:', hubspotError);
+          console.error('❌ HubSpot integration failed:', hubspotError);
           // Continue with contact creation even if HubSpot fails
         }
+      } else {
+        console.warn('⚠️ HubSpot service not enabled - check HUBSPOT_ACCESS_TOKEN');
       }
       
       const contact = await storageInstance.createContact({
@@ -39,7 +53,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hubspotContactId,
       });
       
-      res.json({ success: true, contact, hubspotContactId });
+      res.json({ 
+        success: true, 
+        contact, 
+        hubspotContactId,
+        message: hubspotContactId ? `Contact created in HubSpot with ID: ${hubspotContactId}` : 'Contact saved locally'
+      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({ 

@@ -7,7 +7,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  createContact(contact: InsertContact): Promise<Contact>;
+  createContact(contact: InsertContact & { hubspotContactId?: string }): Promise<Contact>;
   createBooking(booking: InsertBooking & { hubspotContactId?: string }): Promise<Booking>;
   getContacts(): Promise<Contact[]>;
   getBookings(): Promise<Booking[]>;
@@ -37,12 +37,14 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async createContact(insertContact: InsertContact): Promise<Contact> {
+  async createContact(insertContact: InsertContact & { hubspotContactId?: string }): Promise<Contact> {
+    // Remove hubspotContactId for database insert since column may not exist
+    const { hubspotContactId, ...contactData } = insertContact as any;
     const [contact] = await db
       .insert(contacts)
-      .values(insertContact)
+      .values(contactData)
       .returning();
-    return contact;
+    return { ...contact, hubspotContactId } as Contact;
   }
 
   async createBooking(insertBooking: InsertBooking & { hubspotContactId?: string }): Promise<Booking> {
