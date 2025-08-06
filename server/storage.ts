@@ -39,20 +39,72 @@ export class DatabaseStorage implements IStorage {
 
   async createContact(insertContact: InsertContact & { hubspotContactId?: string }): Promise<Contact> {
     // Remove hubspotContactId for database insert since column may not exist
-    const { hubspotContactId, ...contactData } = insertContact as any;
-    const [contact] = await db
-      .insert(contacts)
-      .values(contactData)
-      .returning();
-    return { ...contact, hubspotContactId } as Contact;
+    const { hubspotContactId, ...contactData } = insertContact;
+
+    try {
+      // First attempt: try inserting with hubspotContactId if it exists
+      if (hubspotContactId) {
+        try {
+          const [contact] = await db
+            .insert(contacts)
+            .values({ ...contactData, hubspotContactId })
+            .returning();
+          return { ...contact, hubspotContactId } as Contact;
+        } catch (hubspotError: any) {
+          // If hubspot column doesn't exist, fall through to basic insert
+          if (hubspotError.code !== '42703') {
+            throw hubspotError;
+          }
+          console.log('HubSpot contact ID column missing, inserting without it');
+        }
+      }
+
+      // Fallback: insert without hubspotContactId
+      const [contact] = await db
+        .insert(contacts)
+        .values(contactData)
+        .returning();
+
+      // Return contact with hubspotContactId for API response
+      return { ...contact, hubspotContactId } as Contact;
+    } catch (error: any) {
+      console.error('Database insert error:', error);
+      throw error;
+    }
   }
 
   async createBooking(insertBooking: InsertBooking & { hubspotContactId?: string }): Promise<Booking> {
-    const [booking] = await db
-      .insert(bookings)
-      .values(insertBooking)
-      .returning();
-    return booking;
+    // Remove hubspotContactId for database insert since column may not exist
+    const { hubspotContactId, ...bookingData } = insertBooking;
+
+    try {
+      // First attempt: try inserting with hubspotContactId if it exists
+      if (hubspotContactId) {
+        try {
+          const [booking] = await db
+            .insert(bookings)
+            .values({ ...bookingData, hubspotContactId })
+            .returning();
+          return booking;
+        } catch (hubspotError: any) {
+          // If hubspot column doesn't exist, fall through to basic insert
+          if (hubspotError.code !== '42703') {
+            throw hubspotError;
+          }
+          console.log('HubSpot contact ID column missing in bookings, inserting without it');
+        }
+      }
+
+      // Fallback: insert without hubspotContactId
+      const [booking] = await db
+        .insert(bookings)
+        .values(bookingData)
+        .returning();
+      return { ...booking, hubspotContactId } as Booking;
+    } catch (error: any) {
+      console.error('Database insert error:', error);
+      throw error;
+    }
   }
 
   async getContacts(): Promise<Contact[]> {
@@ -65,27 +117,27 @@ export class DatabaseStorage implements IStorage {
 
   async getBlogPosts(): Promise<BlogPost[]> {
     const posts = await db.select().from(blogPosts);
-    
+
     // If posts exist but lack cover images, fall back to MemStorage with complete data
     if (posts.length > 0 && posts.some((post: any) => !post.coverImage || post.coverImage.startsWith('/images/blog/'))) {
       console.log('Database posts found but missing proper cover images, using MemStorage fallback');
       const memStorage = new MemStorage();
       return await memStorage.getBlogPosts();
     }
-    
+
     return posts;
   }
 
   async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
     const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
-    
+
     // Always use MemStorage fallback for consistent data with proper images
     if (!post || !post.coverImage || post.coverImage.startsWith('/images/blog/')) {
       console.log(`Database post '${slug}' ${!post ? 'not found' : 'missing proper cover image'}, using MemStorage fallback`);
       const memStorage = new MemStorage();
       return await memStorage.getBlogPostBySlug(slug);
     }
-    
+
     return post;
   }
 
@@ -269,7 +321,7 @@ const samplePosts = [
       {
         title: "The Complete Guide to Local SEO for Service Businesses",
         slug: "complete-guide-local-seo-service-businesses",
-        coverImage: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop",
+        coverImage: "https://images.unsplash.com/photo-1560472354-b33ff0c44443?w=800&h=600&fit=crop",
         contentImages: [
           "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop",
           "https://images.unsplash.com/photo-1486312338219-ce68e2c6068d?w=600&h=400&fit=crop"
@@ -436,13 +488,13 @@ async function createStorage(): Promise<IStorage> {
       // Test the connection by trying to fetch blog posts
       const posts = await dbStorage.getBlogPosts();
       console.log('✓ Database connection successful - using DatabaseStorage with', posts.length, 'posts');
-      
+
       // If database has fewer than expected posts, populate with MemStorage data
       if (posts.length < 10) {
         console.log('Database missing posts, populating from MemStorage...');
         const memStorage = new MemStorage();
         const memPosts = await memStorage.getBlogPosts();
-        
+
         for (const memPost of memPosts) {
           const existing = posts.find(p => p.slug === memPost.slug);
           if (!existing) {
@@ -463,7 +515,7 @@ async function createStorage(): Promise<IStorage> {
           }
         }
       }
-      
+
       return dbStorage;
     } catch (error: any) {
       console.warn('Database connection failed, falling back to MemStorage:', error?.message || error);
