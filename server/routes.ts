@@ -1,17 +1,19 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 import { hubspotService } from "./hubspot";
 import { insertContactSchema, insertBookingSchema, insertBlogPostSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Await storage initialization  
+  const storageInstance = await storage;
   
   // Contact form submission
   app.post("/api/contacts", async (req, res) => {
     try {
       const validatedData = insertContactSchema.parse(req.body);
-      const contact = await storage.createContact(validatedData);
+      const contact = await storageInstance.createContact(validatedData);
       res.json({ success: true, contact });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -60,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      const booking = await storage.createBooking({
+      const booking = await storageInstance.createBooking({
         ...validatedData,
         hubspotContactId,
       });
@@ -86,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all contacts (admin endpoint)
   app.get("/api/contacts", async (req, res) => {
     try {
-      const contacts = await storage.getContacts();
+      const contacts = await storageInstance.getContacts();
       res.json(contacts);
     } catch (error) {
       res.status(500).json({ 
@@ -99,7 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all bookings (admin endpoint)
   app.get("/api/bookings", async (req, res) => {
     try {
-      const bookings = await storage.getBookings();
+      const bookings = await storageInstance.getBookings();
       res.json(bookings);
     } catch (error) {
       res.status(500).json({ 
@@ -115,7 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const page = parseInt(req.query.page as string) || 1;
       const pageSize = parseInt(req.query.pageSize as string) || 10;
       
-      const allPosts = await storage.getBlogPosts();
+      const allPosts = await storageInstance.getBlogPosts();
       const startIndex = (page - 1) * pageSize;
       const endIndex = startIndex + pageSize;
       const posts = allPosts.slice(startIndex, endIndex);
@@ -144,7 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { slug } = req.params;
       
-      const post = await storage.getBlogPostBySlug(slug);
+      const post = await storageInstance.getBlogPostBySlug(slug);
       if (!post) {
         res.status(404).json({ 
           success: false, 
@@ -166,7 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertBlogPostSchema.parse(req.body);
       
-      const post = await storage.createBlogPost(validatedData);
+      const post = await storageInstance.createBlogPost(validatedData);
       res.json({ success: true, post });
     } catch (error) {
       if (error instanceof z.ZodError) {

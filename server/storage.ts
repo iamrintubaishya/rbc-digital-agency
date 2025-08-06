@@ -123,12 +123,8 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    for (const user of this.users.values()) {
-      if (user.username === username) {
-        return user;
-      }
-    }
-    return undefined;
+    const userArray = Array.from(this.users.values());
+    return userArray.find(user => user.username === username);
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -143,7 +139,12 @@ export class MemStorage implements IStorage {
   async createContact(insertContact: InsertContact): Promise<Contact> {
     const contact: Contact = {
       id: randomUUID(),
-      ...insertContact,
+      firstName: insertContact.firstName,
+      lastName: insertContact.lastName,
+      email: insertContact.email,
+      phone: insertContact.phone ?? null,
+      businessType: insertContact.businessType ?? null,
+      challenge: insertContact.challenge ?? null,
       createdAt: new Date(),
     };
     this.contacts.set(contact.id, contact);
@@ -176,20 +177,24 @@ export class MemStorage implements IStorage {
   }
 
   async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-    for (const post of this.blogPosts.values()) {
-      if (post.slug === slug) {
-        return post;
-      }
-    }
-    return undefined;
+    const postsArray = Array.from(this.blogPosts.values());
+    return postsArray.find(post => post.slug === slug);
   }
 
   async createBlogPost(insertBlogPost: InsertBlogPost): Promise<BlogPost> {
     const post: BlogPost = {
       id: randomUUID(),
-      ...insertBlogPost,
-      contentImages: insertBlogPost.contentImages || [],
-      tags: insertBlogPost.tags || [],
+      title: insertBlogPost.title,
+      slug: insertBlogPost.slug,
+      content: insertBlogPost.content,
+      excerpt: insertBlogPost.excerpt ?? null,
+      author: insertBlogPost.author ?? null,
+      coverImage: insertBlogPost.coverImage ?? null,
+      contentImages: insertBlogPost.contentImages ?? null,
+      audioUrl: insertBlogPost.audioUrl ?? null,
+      readingTime: insertBlogPost.readingTime ?? null,
+      tags: insertBlogPost.tags ?? null,
+      strapiId: null,
       publishedAt: insertBlogPost.publishedAt ? new Date(insertBlogPost.publishedAt) : null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -402,110 +407,6 @@ export class MemStorage implements IStorage {
       this.blogPosts.set(id, blogPost);
     });
   }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
-  }
-
-  async createContact(insertContact: InsertContact): Promise<Contact> {
-    const id = randomUUID();
-    const contact: Contact = { 
-      ...insertContact,
-      phone: insertContact.phone ?? null,
-      businessType: insertContact.businessType ?? null,
-      challenge: insertContact.challenge ?? null,
-      id, 
-      createdAt: new Date() 
-    };
-    this.contacts.set(id, contact);
-    return contact;
-  }
-
-  async createBooking(insertBooking: InsertBooking & { hubspotContactId?: string }): Promise<Booking> {
-    const id = randomUUID();
-    const booking: Booking = { 
-      ...insertBooking,
-      preferredDate: insertBooking.preferredDate ?? null,
-      hubspotContactId: insertBooking.hubspotContactId ?? null,
-      id, 
-      createdAt: new Date() 
-    };
-    this.bookings.set(id, booking);
-    return booking;
-  }
-
-  async getContacts(): Promise<Contact[]> {
-    return Array.from(this.contacts.values());
-  }
-
-  async getBookings(): Promise<Booking[]> {
-    return Array.from(this.bookings.values());
-  }
-
-  async getBlogPosts(): Promise<BlogPost[]> {
-    return Array.from(this.blogPosts.values()).sort((a, b) => {
-      const dateA = a.publishedAt ? new Date(a.publishedAt) : new Date(a.createdAt!);
-      const dateB = b.publishedAt ? new Date(b.publishedAt) : new Date(b.createdAt!);
-      return dateB.getTime() - dateA.getTime();
-    });
-  }
-
-  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-    return Array.from(this.blogPosts.values()).find(post => post.slug === slug);
-  }
-
-  async createBlogPost(insertBlogPost: InsertBlogPost): Promise<BlogPost> {
-    const id = randomUUID();
-    const now = new Date();
-    const blogPost: BlogPost = {
-      ...insertBlogPost,
-      id,
-      strapiId: null,
-      createdAt: now,
-      updatedAt: now,
-      publishedAt: insertBlogPost.publishedAt ? new Date(insertBlogPost.publishedAt) : null,
-      excerpt: insertBlogPost.excerpt ?? null,
-      author: insertBlogPost.author ?? null,
-      coverImage: insertBlogPost.coverImage ?? null,
-      contentImages: insertBlogPost.contentImages ?? null,
-      audioUrl: insertBlogPost.audioUrl ?? null,
-      readingTime: insertBlogPost.readingTime ?? null,
-      tags: insertBlogPost.tags ?? null,
-    };
-    this.blogPosts.set(id, blogPost);
-    return blogPost;
-  }
-
-  async updateBlogPost(id: string, updateData: Partial<InsertBlogPost>): Promise<BlogPost | undefined> {
-    const existingPost = this.blogPosts.get(id);
-    if (!existingPost) return undefined;
-
-    const updatedPost: BlogPost = {
-      ...existingPost,
-      ...updateData,
-      updatedAt: new Date(),
-      publishedAt: updateData.publishedAt ? new Date(updateData.publishedAt) : existingPost.publishedAt,
-    };
-    this.blogPosts.set(id, updatedPost);
-    return updatedPost;
-  }
-
-  async deleteBlogPost(id: string): Promise<boolean> {
-    return this.blogPosts.delete(id);
-  }
 }
 
 // Smart storage initialization with fallback handling
@@ -517,8 +418,8 @@ async function createStorage(): Promise<IStorage> {
       await dbStorage.getBlogPosts();
       console.log('✓ Database connection successful - using DatabaseStorage');
       return dbStorage;
-    } catch (error) {
-      console.warn('Database connection failed, falling back to MemStorage:', error.message);
+    } catch (error: any) {
+      console.warn('Database connection failed, falling back to MemStorage:', error?.message || error);
       return new MemStorage();
     }
   } else {
@@ -528,4 +429,4 @@ async function createStorage(): Promise<IStorage> {
 }
 
 // Initialize storage with fallback
-export const storage = await createStorage();
+export const storage = createStorage();
