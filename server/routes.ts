@@ -9,12 +9,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Await storage initialization  
   const storageInstance = await storage;
   
-  // Contact form submission
+  // Contact form submission with HubSpot integration
   app.post("/api/contacts", async (req, res) => {
     try {
       const validatedData = insertContactSchema.parse(req.body);
-      const contact = await storageInstance.createContact(validatedData);
-      res.json({ success: true, contact });
+      
+      let hubspotContactId: string | undefined;
+      
+      // Try to create contact in HubSpot
+      if (hubspotService.isEnabled()) {
+        try {
+          const hubspotContact = await hubspotService.createContact({
+            email: validatedData.email,
+            firstname: validatedData.firstName,
+            lastname: validatedData.lastName,
+            phone: validatedData.phone,
+            company: validatedData.businessType,
+          });
+          hubspotContactId = hubspotContact.id;
+          console.log('✅ HubSpot contact created:', hubspotContactId);
+        } catch (hubspotError) {
+          console.warn('HubSpot integration failed:', hubspotError);
+          // Continue with contact creation even if HubSpot fails
+        }
+      }
+      
+      const contact = await storageInstance.createContact({
+        ...validatedData,
+        hubspotContactId,
+      });
+      
+      res.json({ success: true, contact, hubspotContactId });
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({ 

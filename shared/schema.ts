@@ -17,6 +17,7 @@ export const contacts = pgTable("contacts", {
   phone: text("phone"),
   businessType: text("business_type"),
   challenge: text("challenge"),
+  hubspotContactId: text("hubspot_contact_id"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

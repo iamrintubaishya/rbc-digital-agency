@@ -123,6 +123,7 @@ class HubSpotService {
     }
   }
 
+  // Check if service is enabled and ready
   isEnabled(): boolean {
     return !!this.client;
   }
