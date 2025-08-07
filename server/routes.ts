@@ -261,32 +261,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update blog post in Sanity
-  app.patch("/api/blog/posts/:slug", async (req, res) => {
+  // Update blog post by ID
+  app.patch("/api/blog/posts/:id", async (req, res) => {
     try {
-      const { slug } = req.params;
+      const { id } = req.params;
       
-      // First try to find the post in Sanity
-      let existingPost = await getBlogPostFromSanity(slug);
+      // Try updating in Sanity if token available
+      if (process.env.SANITY_API_TOKEN) {
+        try {
+          const updatedPost = await updateBlogPostInSanity(id, req.body);
+          return res.json({ success: true, data: updatedPost });
+        } catch (sanityError) {
+          console.warn('Sanity update failed, trying local storage:', sanityError);
+        }
+      }
       
-      if (existingPost && process.env.SANITY_API_TOKEN) {
-        // Update in Sanity if found and token available
-        const updatedPost = await updateBlogPostInSanity(existingPost.id, req.body);
+      // Fall back to local storage update
+      console.log(`Updating post ${id} in local storage`);
+      const updatedPost = await storageInstance.updateBlogPost(id, req.body);
+      if (updatedPost) {
         res.json({ success: true, data: updatedPost });
       } else {
-        // Fall back to local storage update
-        console.log(`Updating post ${slug} in local storage (Sanity not available)`);
-        const localPost = await storageInstance.getBlogPostBySlug(slug);
-        if (!localPost) {
-          return res.status(404).json({ success: false, message: 'Blog post not found' });
-        }
-        
-        const updatedPost = await storageInstance.updateBlogPost(localPost.id, req.body);
-        if (updatedPost) {
-          res.json({ success: true, data: updatedPost });
-        } else {
-          res.status(404).json({ success: false, message: 'Blog post not found' });
-        }
+        res.status(404).json({ success: false, message: 'Blog post not found' });
       }
     } catch (error) {
       console.error('Blog update error:', error);
@@ -325,10 +321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve the admin interface for blog management
-  app.get("/admin", (req, res) => {
-    res.sendFile("admin.html", { root: "." });
-  });
+  // Admin routes are handled by the React router
 
   const httpServer = createServer(app);
   return httpServer;
