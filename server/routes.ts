@@ -173,7 +173,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (loadAll) {
         // Load all content including MemStorage when requested
         console.log('Loading all blog content including local storage');
-        allPosts = await storageInstance.getAllBlogPosts();
+        allPosts = await storageInstance.getBlogPosts();
         
         // Also try to get from Sanity and merge
         try {
@@ -181,8 +181,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (sanityPosts && sanityPosts.length > 0) {
             console.log(`Found ${sanityPosts.length} posts in Sanity, ${allPosts.length} in local storage`);
             // Merge Sanity posts with local posts, avoiding duplicates
-            const sanityIds = new Set(sanityPosts.map(p => p.slug));
-            const uniqueLocalPosts = allPosts.filter(p => !sanityIds.has(p.slug));
+            const sanityIds = new Set(sanityPosts.map((p: any) => p.slug));
+            const uniqueLocalPosts = allPosts.filter((p: any) => !sanityIds.has(p.slug));
             allPosts = [...sanityPosts, ...uniqueLocalPosts];
           }
         } catch (error) {
@@ -195,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // If Sanity returns no posts, fall back to local storage
         if (!allPosts || allPosts.length === 0) {
           console.log('Sanity returned no posts, using local storage fallback');
-          allPosts = await storageInstance.getAllBlogPosts();
+          allPosts = await storageInstance.getBlogPosts();
         }
       }
       
