@@ -253,7 +253,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-
+  // Serve the admin interface for blog management
+  app.get("/admin", (req, res) => {
+    res.sendFile("admin.html", { root: "." });
+  });
 
   const httpServer = createServer(app);
   return httpServer;
