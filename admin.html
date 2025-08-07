@@ -254,7 +254,7 @@
                     tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(Boolean),
                 };
 
-                const response = await fetch(`/api/blog/posts/${selectedPost.id}`, {
+                const response = await fetch(`/api/blog/posts/${selectedPost.slug}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',

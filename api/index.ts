@@ -1,6 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { storage, createMemStorageSync } from '../server/storage.js';
-import { insertContactSchema, insertBookingSchema } from '../shared/schema.js';
+import { insertContactSchema, insertBookingSchema, insertBlogPostSchema } from '../shared/schema.js';
+import { 
+  getAllBlogPostsFromSanity, 
+  getBlogPostFromSanity, 
+  createBlogPostInSanity, 
+  updateBlogPostInSanity 
+} from '../server/sanity.js';
 import { z } from 'zod';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -89,12 +95,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Blog API endpoints
+    // Blog API endpoints - using Sanity CMS
     if (method === 'GET' && path.includes('/blog/posts')) {
       if (path.includes('/blog/posts/') && !path.endsWith('/blog/posts/')) {
         // Individual blog post by slug
         const slug = path.split('/blog/posts/')[1].split('?')[0];
-        console.log(`[Vercel] Fetching blog post: ${slug}`);
+        console.log(`[Vercel] Fetching blog post from Sanity: ${slug}`);
+        
+        // Try Sanity first
+        const sanityPost = await getBlogPostFromSanity(slug);
+        if (sanityPost) {
+          console.log(`[Vercel] Found post in Sanity: ${sanityPost.title}`);
+          return res.json({ data: sanityPost });
+        }
+        
+        // Fallback to local storage
         const post = await storageInstance.getBlogPostBySlug(slug);
         if (post) {
           return res.json({ data: post });
@@ -103,21 +118,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(404).json({ success: false, message: 'Blog post not found' });
         }
       } else {
-        // List blog posts with pagination support  
-        const url = new URL(req.url || '', `http://${req.headers.host}`);
-        const pageSize = parseInt(url.searchParams.get('pageSize') || '0');
-        let allPosts = await storageInstance.getBlogPosts();
-        console.log(`[Vercel] Blog posts found: ${allPosts.length}`);
+        // List blog posts - prioritize Sanity CMS
+        console.log('[Vercel] Fetching blog posts from Sanity CMS...');
         
-        // Force initialization if no posts found (production fallback)
-        if (allPosts.length === 0) {
-          console.log('[Vercel] No posts found, forcing MemStorage initialization');
-          try {
-            const memStorage = createMemStorageSync();
-            allPosts = await memStorage.getBlogPosts();
-            console.log(`[Vercel] MemStorage initialized with ${allPosts.length} posts`);
-          } catch (error) {
-            console.error('[Vercel] MemStorage initialization failed:', error);
+        let allPosts = await getAllBlogPostsFromSanity();
+        
+        if (allPosts && allPosts.length > 0) {
+          console.log(`[Vercel] Found ${allPosts.length} posts from Sanity CMS`);
+        } else {
+          console.log('[Vercel] No posts in Sanity, using local storage fallback');
+          allPosts = await storageInstance.getBlogPosts();
+          
+          // Last resort fallback to MemStorage
+          if (allPosts.length === 0) {
+            console.log('[Vercel] No posts found, forcing MemStorage initialization');
+            try {
+              const memStorage = createMemStorageSync();
+              allPosts = await memStorage.getBlogPosts();
+              console.log(`[Vercel] MemStorage initialized with ${allPosts.length} posts`);
+            } catch (error) {
+              console.error('[Vercel] MemStorage initialization failed:', error);
+            }
           }
         }
         
@@ -174,9 +195,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
+    // Create new blog post
+    if (method === 'POST' && path.includes('/blog/posts') && !path.includes('/blog/posts/')) {
+      try {
+        const validatedData = insertBlogPostSchema.parse(req.body);
+        
+        // Try to create in Sanity first
+        try {
+          const sanityPost = await createBlogPostInSanity(validatedData);
+          console.log(`[Vercel] Created post in Sanity: ${sanityPost._id}`);
+          return res.json({ success: true, data: sanityPost });
+        } catch (sanityError) {
+          console.warn('[Vercel] Sanity creation failed, using local storage:', sanityError);
+          // Fallback to local storage
+          const post = await storageInstance.createBlogPost(validatedData);
+          return res.json({ success: true, data: post });
+        }
+      } catch (error) {
+        console.error('[Vercel] Blog post creation error:', error);
+        return res.status(500).json({ success: false, message: 'Failed to create blog post' });
+      }
+    }
+
     // Update blog post by slug
     if (method === 'PATCH' && path.includes('/blog/posts/')) {
       const slug = path.split('/blog/posts/')[1].split('?')[0];
+      
+      // Try updating in Sanity first
+      try {
+        const sanityPost = await getBlogPostFromSanity(slug);
+        if (sanityPost) {
+          const updatedPost = await updateBlogPostInSanity(sanityPost.id, req.body);
+          console.log(`[Vercel] Updated post in Sanity: ${updatedPost._id}`);
+          return res.json({ success: true, data: updatedPost });
+        }
+      } catch (sanityError) {
+        console.warn('[Vercel] Sanity update failed, trying local storage:', sanityError);
+      }
+      
+      // Fallback to local storage
       const existingPost = await storageInstance.getBlogPostBySlug(slug);
       if (!existingPost) {
         return res.status(404).json({ success: false, message: 'Blog post not found' });
