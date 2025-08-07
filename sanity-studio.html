@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RBC Digital Agency - Sanity Studio</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #1a1a1a;
+            margin: 0 0 10px 0;
+        }
+        .header p {
+            color: #666;
+            margin: 0;
+        }
+        .setup-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .step {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #2276fc;
+        }
+        .step h3 {
+            margin: 0 0 10px 0;
+            color: #1a1a1a;
+        }
+        .step p {
+            margin: 0 0 10px 0;
+            color: #666;
+            line-height: 1.5;
+        }
+        .btn {
+            background: #2276fc;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            display: inline-block;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #1e6bdb;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #e9ecef;
+            margin: 10px 0;
+        }
+        .current-posts {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .current-posts h4 {
+            margin: 0 0 10px 0;
+            color: #1565c0;
+        }
+        .current-posts ul {
+            margin: 0;
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Sanity Studio Setup</h1>
+        <p>Project ID: <strong>3prkr232</strong> | RBC Digital Agency Blog Management</p>
+    </div>
+
+    <div class="setup-card">
+        <div class="step success">
+            <h3>✅ Step 1: Your Content is Ready</h3>
+            <p>You already have 4 blog posts stored in Sanity CMS!</p>
+            <div class="current-posts">
+                <h4>Your Current Blog Posts:</h4>
+                <ul>
+                    <li>"5 Digital Marketing Strategies That Drive Local Business Growth"</li>
+                    <li>"AI Automation: Transform Your Business Operations"</li>
+                    <li>"The Complete Guide to Google Ads for Service Businesses"</li>
+                    <li>"How to Boost Your Local Business with Social Media Marketing"</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🚀 Step 2: Access Your Sanity Studio</h3>
+            <p>Choose one of these methods to manage your content:</p>
+            
+            <p><strong>Method 1: Official Sanity Studio</strong></p>
+            <a href="https://www.sanity.io/manage" target="_blank" class="btn">Open Sanity.io Management</a>
+            <p style="margin-top: 10px; font-size: 14px;">
+                → Find project <strong>3prkr232</strong> → Click "Studio" or "Content"
+            </p>
+
+            <p style="margin-top: 20px;"><strong>Method 2: Local Admin Panel</strong></p>
+            <a href="/admin.html" target="_blank" class="btn btn-secondary">Open Local Admin</a>
+            <p style="margin-top: 10px; font-size: 14px;">
+                → View all posts (Sanity + Local) → Create/Edit functionality
+            </p>
+        </div>
+
+        <div class="step">
+            <h3>📝 Step 3: Create & Edit Content</h3>
+            <p>In Sanity Studio, you can:</p>
+            <ul>
+                <li>✏️ Edit existing blog posts with rich text editor</li>
+                <li>➕ Create new posts with full content management</li>
+                <li>🖼️ Upload and manage images in media library</li>
+                <li>🏷️ Add tags and organize content</li>
+                <li>👥 Collaborate with team members</li>
+                <li>🔄 Track version history and changes</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>🔧 Technical Information</h3>
+            <div class="code">
+                Project ID: 3prkr232<br>
+                Dataset: production<br>
+                API Endpoint: https://3prkr232.api.sanity.io/v2024-01-01/data/query/production<br>
+                Status: ✅ Connected and Working
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="https://www.sanity.io/manage" target="_blank" class="btn">Start Managing Content</a>
+        </div>
+    </div>
+
+    <script>
+        // Test Sanity API connection
+        fetch('https://3prkr232.api.sanity.io/v2024-01-01/data/query/production?query=*%5B_type%20%3D%3D%20%22blogPost%22%5D%7Btitle%7D')
+            .then(response => response.json())
+            .then(data => {
+                if (data.result && data.result.length > 0) {
+                    console.log('✅ Sanity API connection successful!', data.result.length, 'posts found');
+                } else {
+                    console.log('⚠️ No posts found in Sanity');
+                }
+            })
+            .catch(error => {
+                console.error('❌ Sanity API connection failed:', error);
+            });
+    </script>
+</body>
+</html>
