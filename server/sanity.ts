@@ -1,21 +1,34 @@
 import { createClient } from '@sanity/client'
 
-export const sanityClient = createClient({
-  projectId: '3prkr232',
-  dataset: 'production',
-  useCdn: true,
+// Configuration with environment variables and fallbacks
+const SANITY_CONFIG = {
+  projectId: process.env.SANITY_PROJECT_ID || '3prkr232',
+  dataset: process.env.SANITY_DATASET || 'production',
+  useCdn: process.env.NODE_ENV === 'production',
   apiVersion: '2024-08-07',
-  token: process.env.SANITY_API_TOKEN, // Required for mutations
+  token: process.env.SANITY_API_TOKEN,
+}
+
+export const sanityClient = createClient({
+  ...SANITY_CONFIG,
+  token: SANITY_CONFIG.token, // Required for mutations
 })
 
 // Read-only client for public queries
 export const publicSanityClient = createClient({
-  projectId: '3prkr232',
-  dataset: 'production',
-  useCdn: true,
-  apiVersion: '2024-08-07',
-  // No token needed for reads
+  ...SANITY_CONFIG,
+  token: undefined, // No token needed for reads
 })
+
+// Check if Sanity is configured
+export const isSanityConfigured = () => {
+  return !!(SANITY_CONFIG.projectId && SANITY_CONFIG.dataset)
+}
+
+// Check if Sanity has write access
+export const hasSanityWriteAccess = () => {
+  return !!(SANITY_CONFIG.token && isSanityConfigured())
+}
 
 // Blog post queries
 export async function getAllBlogPostsFromSanity() {

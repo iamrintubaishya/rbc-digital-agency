@@ -2,6 +2,7 @@ import { users, contacts, bookings, blogPosts, type User, type InsertUser, type 
 import { db } from "./db.js";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { getAllBlogPostsFromSanity, getBlogPostFromSanity, createBlogPostInSanity, updateBlogPostInSanity, isSanityConfigured, hasSanityWriteAccess } from "./sanity.js";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -116,6 +117,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getBlogPosts(): Promise<BlogPost[]> {
+    // Try Sanity first if configured
+    if (isSanityConfigured()) {
+      try {
+        const sanityPosts = await getAllBlogPostsFromSanity();
+        if (sanityPosts && sanityPosts.length > 0) {
+          console.log(`Retrieved ${sanityPosts.length} posts from Sanity CMS`);
+          // Ensure all posts have required schema properties
+          return sanityPosts.map((post: any) => ({
+            ...post,
+            contentImages: null,
+            strapiId: null,
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching from Sanity, falling back to database:', error);
+      }
+    }
+
+    // Fallback to database
     const posts = await db.select().from(blogPosts);
 
     // If posts exist but lack cover images, fall back to MemStorage with complete data
@@ -129,6 +149,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+    // Try Sanity first if configured
+    if (isSanityConfigured()) {
+      try {
+        const sanityPost = await getBlogPostFromSanity(slug);
+        if (sanityPost) {
+          console.log(`Retrieved post '${slug}' from Sanity CMS`);
+          // Ensure post has required schema properties
+          return {
+            ...sanityPost,
+            contentImages: null,
+            strapiId: null,
+          };
+        }
+      } catch (error) {
+        console.error(`Error fetching post '${slug}' from Sanity, falling back to database:`, error);
+      }
+    }
+
+    // Fallback to database
     const [post] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug));
 
     // Always use MemStorage fallback for consistent data with proper images
@@ -142,6 +181,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBlogPost(insertBlogPost: InsertBlogPost): Promise<BlogPost> {
+    // Try Sanity first if configured with write access
+    if (hasSanityWriteAccess()) {
+      try {
+        const sanityPost = await createBlogPostInSanity(insertBlogPost);
+        console.log(`Created post in Sanity CMS: ${sanityPost._id}`);
+        // Transform Sanity response to match our schema
+        return {
+          id: sanityPost._id,
+          title: insertBlogPost.title,
+          slug: insertBlogPost.slug,
+          excerpt: insertBlogPost.excerpt || null,
+          content: insertBlogPost.content,
+          author: insertBlogPost.author || null,
+          coverImage: insertBlogPost.coverImage || null,
+          contentImages: null,
+          audioUrl: insertBlogPost.audioUrl || null,
+          readingTime: insertBlogPost.readingTime || null,
+          tags: insertBlogPost.tags || [],
+          strapiId: null,
+          publishedAt: insertBlogPost.publishedAt ? new Date(insertBlogPost.publishedAt) : null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+      } catch (error) {
+        console.error('Error creating post in Sanity, falling back to database:', error);
+      }
+    }
+
+    // Fallback to database
     const postData = {
       ...insertBlogPost,
       publishedAt: insertBlogPost.publishedAt ? new Date(insertBlogPost.publishedAt) : null,
@@ -156,6 +224,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateBlogPost(id: string, updateData: Partial<InsertBlogPost>): Promise<BlogPost | undefined> {
+    // Try Sanity first if configured with write access
+    if (hasSanityWriteAccess()) {
+      try {
+        const sanityPost = await updateBlogPostInSanity(id, updateData);
+        console.log(`Updated post in Sanity CMS: ${id}`);
+        // Transform Sanity response to match our schema
+        return {
+          id: sanityPost._id,
+          title: sanityPost.title,
+          slug: sanityPost.slug?.current || updateData.slug || '',
+          excerpt: sanityPost.excerpt || null,
+          content: sanityPost.content,
+          author: sanityPost.author || null,
+          coverImage: sanityPost.coverImage || null,
+          contentImages: null,
+          audioUrl: sanityPost.audioUrl || null,
+          readingTime: sanityPost.readingTime || null,
+          tags: sanityPost.tags || [],
+          strapiId: null,
+          publishedAt: sanityPost.publishedAt ? new Date(sanityPost.publishedAt) : null,
+          createdAt: new Date(sanityPost._createdAt),
+          updatedAt: new Date(sanityPost._updatedAt),
+        };
+      } catch (error) {
+        console.error('Error updating post in Sanity, falling back to database:', error);
+      }
+    }
+
+    // Fallback to database
     const processedData = {
       ...updateData,
       publishedAt: updateData.publishedAt ? new Date(updateData.publishedAt) : undefined,
