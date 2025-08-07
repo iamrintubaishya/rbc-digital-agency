@@ -199,7 +199,7 @@ export default function ContactSection() {
               <Mail className="text-white" size={20} />
             </div>
             <h4 className="font-semibold mb-2">Email Us</h4>
-            <p className="text-slate-400">hello@rbcdigital.com</p>
+            <p className="text-slate-400">hello@rbcdigitalagency.com</p>
           </div>
           
           <div className="text-center">
