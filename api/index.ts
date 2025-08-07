@@ -22,7 +22,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (method === 'POST' && path.includes('/contacts')) {
       const validatedData = insertContactSchema.parse(req.body);
-      const contact = await storageInstance.createContact(validatedData);
+      const contact = await storageInstance.createContact({
+        ...validatedData,
+        hubspotContactId: validatedData.hubspotContactId || undefined
+      });
       return res.json({ success: true, contact });
     }
 

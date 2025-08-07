@@ -207,7 +207,7 @@ export default function ContactSection() {
               <MapPin className="text-white" size={20} />
             </div>
             <h4 className="font-semibold mb-2">Visit Us</h4>
-            <p className="text-slate-400">123 Business Ave<br />Your City, State 12345</p>
+            <p className="text-slate-400">Pathsala-781325, Bajali (Assam)</p>
           </div>
         </div>
       </div>
