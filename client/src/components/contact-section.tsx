@@ -191,7 +191,7 @@ export default function ContactSection() {
               <Phone className="text-white" size={20} />
             </div>
             <h4 className="font-semibold mb-2">Call Us</h4>
-            <p className="text-slate-400">(555) 123-4567</p>
+            <p className="text-slate-400">+91 60017 94978</p>
           </div>
           
           <div className="text-center">
