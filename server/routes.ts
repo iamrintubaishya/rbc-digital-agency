@@ -210,7 +210,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Fall back to local storage if not found in Sanity
       if (!post) {
         console.log(`Post ${slug} not found in Sanity, trying local storage`);
-        post = await storageInstance.getBlogPostBySlug(slug);
+        const localPost = await storageInstance.getBlogPostBySlug(slug);
+        if (localPost) {
+          post = localPost;
+        }
       }
       
       if (!post) {

@@ -178,6 +178,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
         
+        // Get pageSize from URL params
+        const url = new URL(req.url || '', `http://${req.headers.host}`);
+        const pageSize = parseInt(url.searchParams.get('pageSize') || '0');
+        
         // Limit posts if pageSize is specified
         const posts = pageSize > 0 ? allPosts.slice(0, pageSize) : allPosts;
         

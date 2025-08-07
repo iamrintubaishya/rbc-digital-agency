@@ -216,6 +216,7 @@ export class MemStorage implements IStorage {
       phone: insertContact.phone ?? null,
       businessType: insertContact.businessType ?? null,
       challenge: insertContact.challenge ?? null,
+      hubspotContactId: null,
       createdAt: new Date(),
     };
     this.contacts.set(contact.id, contact);
