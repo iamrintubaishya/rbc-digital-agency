@@ -1,86 +1,125 @@
-# Sanity CMS Integration for RBC Digital Agency
+# Sanity CMS Migration Complete - Setup Instructions
 
-## Overview
+## ✅ What's Been Set Up
 
-Your blog management system is now enhanced with a professional admin interface that connects directly to your existing Neon database. This gives you the best of both worlds: keeping your data where it is while having a beautiful editing experience.
+I've configured your project to use **Sanity.io** as your primary blog CMS with project ID `3prkr232`. Here's what's been implemented:
 
-## What's Been Set Up
+### 1. Sanity Configuration
+- **Project ID**: `3prkr232` 
+- **Dataset**: `production`
+- **Schema**: Blog post structure matching your existing content
+- **API Integration**: Smart fallback system (Sanity → Local storage)
 
-✅ **Custom Admin Interface**: Beautiful web-based editor at `/admin`
-✅ **Neon Database Integration**: Directly edits your existing blog posts
-✅ **Professional UI**: Clean, modern interface for content management
-✅ **Real-time Updates**: Changes save directly to your database
-✅ **No Data Migration**: Works with your current blog posts
+### 2. Updated Blog API Routes
+Your website now tries to fetch from Sanity first, with automatic fallback to local storage:
+- `GET /api/blog/posts` - Lists all posts
+- `GET /api/blog/posts/:slug` - Individual post
+- `PATCH /api/blog/posts/:slug` - Update post
+- `POST /api/blog/posts` - Create new post
 
-## How to Access
+### 3. Migration Script Ready
+I've created a migration script to move your 11 existing blog posts to Sanity.
 
-1. **Open your admin panel**: Visit `http://localhost:5000/admin` (or your production domain + `/admin`)
-2. **View all posts**: See all your existing blog posts from Neon database
-3. **Click to edit**: Click any post to start editing
-4. **Save changes**: Updates go directly to your Neon database
-5. **See updates**: Changes appear immediately on your website
+## 🔑 Next Steps (Required)
 
-## Features
+### Step 1: Get Your Sanity API Token
+1. Go to **https://sanity.io/manage/personal/tokens**
+2. Click **"Create new token"**
+3. **Name**: "RBC Blog API"
+4. **Permissions**: Choose **"Editor"**
+5. **Copy the token** (you won't see it again!)
 
-### Blog Post Management
-- **Rich Text Editing**: Professional content editor
-- **Meta Data**: Title, slug, excerpt, author
-- **Media Management**: Cover images, content images, audio URLs
-- **SEO Optimization**: Reading time, tags, publication dates
-- **Real-time Preview**: See changes as you make them
+### Step 2: Add API Token to Your Project
+Add the token to your environment variables:
 
-### Database Integration
-- **Direct Connection**: No sync issues or delays
-- **Existing Data**: All your current posts are immediately available
-- **Automatic Updates**: Changes reflect on your website instantly
-- **Data Safety**: Your Neon database remains the single source of truth
-
-## Technical Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Admin Panel   │───▶│  Your Server    │───▶│ Neon Database   │
-│   (/admin)      │    │   (Express)     │    │   (PostgreSQL)  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-        │                        │                        │
-        │                        │                        │
-        ▼                        ▼                        ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│  Beautiful UI   │    │  Existing API   │    │ Your Blog Data  │
-│  Content Editor │    │    Endpoints    │    │  (No Changes)   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+**For Local Development:**
+```bash
+# In your .env file
+SANITY_API_TOKEN=your_token_here
 ```
 
-## Production Deployment
+**For Vercel Production:**
+1. Go to your Vercel dashboard
+2. Select your project → Settings → Environment Variables
+3. Add new variable:
+   - **Name**: `SANITY_API_TOKEN`
+   - **Value**: Your token
+   - **Environment**: Production (and optionally Preview)
 
-When you deploy to Vercel:
-1. The `/admin` route will be available at `yourdomain.com/admin`
-2. It will connect to your production Neon database
-3. All edits will update your live website immediately
-4. You can manage content from anywhere with internet access
+### Step 3: Run Migration
+Once you have the API token:
 
-## Security Considerations
+```bash
+# Install tsx if not already installed
+npm install -g tsx
 
-For production use, consider adding:
-- Authentication to protect the admin panel
-- User roles and permissions
-- Backup mechanisms
-- Change history tracking
+# Run migration script
+SANITY_API_TOKEN=your_token_here npx tsx scripts/migrate-to-sanity.ts
+```
 
-## Benefits
+This will copy all your existing blog posts to Sanity.
 
-✅ **Keep Your Data**: No migration needed from Neon database
-✅ **Professional Interface**: Beautiful editing experience
-✅ **HubSpot Integration**: Existing CRM integration remains intact
-✅ **Cost Effective**: No additional CMS subscription fees
-✅ **Real-time Updates**: Changes appear immediately
-✅ **Developer Friendly**: Built with your existing tech stack
+## 🎯 What You Get
 
-## Next Steps
+### Professional CMS Interface
+- **Studio URL**: `https://3prkr232.sanity.studio`
+- **Rich text editor** with formatting options
+- **Media management** for images and files
+- **Real-time collaboration** with team members
+- **Version history** and drafts
+- **Mobile editing** capabilities
 
-1. **Test the admin panel**: Visit `/admin` and edit a blog post
-2. **Customize if needed**: Modify the interface to match your preferences
-3. **Add authentication**: Secure the admin panel for production
-4. **Deploy to production**: Your admin panel will work on Vercel too
+### Smart Integration
+- **Primary**: Posts served from Sanity (fast, cached)
+- **Fallback**: Local storage if Sanity unavailable
+- **Seamless**: No changes needed to your frontend
+- **Reliable**: Your website works even if Sanity is down
 
-Your blog management system is now professional-grade while maintaining all your existing functionality!
+### Free Tier Benefits
+- **500k API requests/month** (more than enough)
+- **3 users** for team collaboration
+- **5GB bandwidth** for media files
+- **Community support** and documentation
+
+## 📋 Testing Checklist
+
+### After Migration:
+- [ ] Visit `https://3prkr232.sanity.studio` (your admin interface)
+- [ ] Verify all 11 blog posts are visible
+- [ ] Edit a blog post title and save
+- [ ] Check your website shows the updated content
+- [ ] Test creating a new blog post in Sanity
+
+### On Your Website:
+- [ ] Blog page shows all posts
+- [ ] Individual post pages load correctly
+- [ ] "Read full article" links work
+- [ ] Content matches what you see in Sanity
+
+## 🔧 Admin Interface Features
+
+In your Sanity Studio, you can:
+- **Edit existing posts** with rich text formatting
+- **Create new posts** with all the fields you need
+- **Upload images** directly in the editor
+- **Manage tags** for categorization
+- **Set publish dates** and author information
+- **Preview changes** before publishing
+- **Collaborate** with team members in real-time
+
+## 🚀 Production Deployment
+
+Your Vercel deployment will automatically use Sanity once you:
+1. Add the `SANITY_API_TOKEN` to Vercel environment variables
+2. Redeploy your application (or it will redeploy automatically)
+
+The website will then serve content from Sanity, giving you the professional CMS experience you wanted.
+
+## 🆘 Support
+
+If you need help:
+1. **Sanity Documentation**: https://www.sanity.io/docs
+2. **Your Studio**: https://3prkr232.sanity.studio
+3. **Project Dashboard**: https://sanity.io/organizations/personal/project/3prkr232
+
+Ready to get your Sanity API token and run the migration?

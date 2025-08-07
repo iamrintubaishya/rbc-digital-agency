@@ -4,6 +4,12 @@ import { storage } from "./storage.js";
 import { hubspotService } from "./hubspot";
 import { insertContactSchema, insertBookingSchema, insertBlogPostSchema } from "@shared/schema";
 import { z } from "zod";
+import { 
+  getAllBlogPostsFromSanity, 
+  getBlogPostFromSanity, 
+  createBlogPostInSanity, 
+  updateBlogPostInSanity 
+} from "./sanity.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Await storage initialization  
@@ -155,13 +161,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Blog API routes - using local database only
+  // Blog API routes - using Sanity CMS
   app.get("/api/blog/posts", async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const pageSize = parseInt(req.query.pageSize as string) || 10;
       
-      const allPosts = await storageInstance.getBlogPosts();
+      // Try to get from Sanity first, fall back to local storage
+      let allPosts = await getAllBlogPostsFromSanity();
+      
+      // If Sanity returns no posts, fall back to local storage
+      if (!allPosts || allPosts.length === 0) {
+        console.log('Sanity returned no posts, using local storage fallback');
+        allPosts = await storageInstance.getBlogPosts();
+      }
+      
       const startIndex = (page - 1) * pageSize;
       const endIndex = startIndex + pageSize;
       const posts = allPosts.slice(startIndex, endIndex);
@@ -190,7 +204,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { slug } = req.params;
       
-      const post = await storageInstance.getBlogPostBySlug(slug);
+      // Try to get from Sanity first
+      let post = await getBlogPostFromSanity(slug);
+      
+      // Fall back to local storage if not found in Sanity
+      if (!post) {
+        console.log(`Post ${slug} not found in Sanity, trying local storage`);
+        post = await storageInstance.getBlogPostBySlug(slug);
+      }
+      
       if (!post) {
         res.status(404).json({ 
           success: false, 
@@ -201,6 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ data: post });
     } catch (error) {
+      console.error('Blog post fetch error:', error);
       res.status(500).json({ 
         success: false, 
         message: "Failed to fetch blog post" 
@@ -208,24 +231,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update blog post (for fixing images)
+  // Update blog post in Sanity
   app.patch("/api/blog/posts/:slug", async (req, res) => {
     try {
       const { slug } = req.params;
       
-      // First get the post to get its ID
-      const existingPost = await storageInstance.getBlogPostBySlug(slug);
-      if (!existingPost) {
-        return res.status(404).json({ success: false, message: 'Blog post not found' });
-      }
+      // First try to find the post in Sanity
+      let existingPost = await getBlogPostFromSanity(slug);
       
-      const updatedPost = await storageInstance.updateBlogPost(existingPost.id, req.body);
-      if (updatedPost) {
+      if (existingPost && process.env.SANITY_API_TOKEN) {
+        // Update in Sanity if found and token available
+        const updatedPost = await updateBlogPostInSanity(existingPost.id, req.body);
         res.json({ success: true, data: updatedPost });
       } else {
-        res.status(404).json({ success: false, message: 'Blog post not found' });
+        // Fall back to local storage update
+        console.log(`Updating post ${slug} in local storage (Sanity not available)`);
+        const localPost = await storageInstance.getBlogPostBySlug(slug);
+        if (!localPost) {
+          return res.status(404).json({ success: false, message: 'Blog post not found' });
+        }
+        
+        const updatedPost = await storageInstance.updateBlogPost(localPost.id, req.body);
+        if (updatedPost) {
+          res.json({ success: true, data: updatedPost });
+        } else {
+          res.status(404).json({ success: false, message: 'Blog post not found' });
+        }
       }
     } catch (error) {
+      console.error('Blog update error:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
   });
@@ -234,8 +268,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertBlogPostSchema.parse(req.body);
       
-      const post = await storageInstance.createBlogPost(validatedData);
-      res.json({ success: true, post });
+      // Try to create in Sanity if token is available
+      if (process.env.SANITY_API_TOKEN) {
+        const post = await createBlogPostInSanity(validatedData);
+        res.json({ success: true, post });
+      } else {
+        // Fall back to local storage
+        console.log('Creating blog post in local storage (Sanity token not available)');
+        const post = await storageInstance.createBlogPost(validatedData);
+        res.json({ success: true, post });
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({ 

@@ -7,7 +7,7 @@ export default defineConfig({
   name: 'rbc-digital-agency',
   title: 'RBC Digital Agency CMS',
   
-  projectId: 'your-project-id', // Will be set up after creating Sanity project
+  projectId: '3prkr232',
   dataset: 'production',
   
   plugins: [
@@ -19,9 +19,9 @@ export default defineConfig({
     types: [blogPostType],
   },
   
-  // Custom API endpoints to connect to your Neon database
+  // Custom API configuration
   api: {
-    projectId: 'your-project-id',
+    projectId: '3prkr232',
     dataset: 'production',
   }
 })
