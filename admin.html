@@ -123,6 +123,10 @@
         </div>
         
         <div id="content" style="display: none;">
+            <div style="margin-bottom: 20px;">
+                <button class="btn" onclick="createNewPost()">+ Create New Post</button>
+                <button class="btn" onclick="loadAllContent()" style="margin-left: 10px; background: #28a745;">Load All 11 Posts</button>
+            </div>
             <div id="postList" class="post-list"></div>
             
             <div id="editor" class="editor">
@@ -286,8 +290,68 @@
             }
         });
 
-        // Initialize
-        loadPosts();
+        // Load all blog content (including MemStorage posts)
+        async function loadAllContent() {
+            try {
+                console.log('Loading all blog content...');
+                const response = await fetch('/api/blog/posts?loadAll=true');
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('All content loaded:', data);
+                posts = data.data || [];
+                console.log('Total posts loaded:', posts.length);
+                renderPosts();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading all content:', error);
+                document.getElementById('loading').innerHTML = 
+                    `❌ Error loading content: ${error.message}`;
+            }
+        }
+
+        // Create new post
+        function createNewPost() {
+            selectedPost = {
+                id: 'new-' + Date.now(),
+                title: '',
+                slug: '',
+                excerpt: '',
+                content: '',
+                author: 'RBC Digital Team',
+                coverImage: '',
+                audioUrl: '',
+                readingTime: '5 min read',
+                tags: [],
+                publishedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            // Populate form with empty values
+            document.getElementById('title').value = '';
+            document.getElementById('slug').value = '';
+            document.getElementById('excerpt').value = '';
+            document.getElementById('content').value = '';
+            document.getElementById('author').value = 'RBC Digital Team';
+            document.getElementById('coverImage').value = '';
+            document.getElementById('audioUrl').value = '';
+            document.getElementById('readingTime').value = '5 min read';
+            document.getElementById('tags').value = '';
+
+            // Show editor
+            document.getElementById('editor').classList.add('active');
+            document.getElementById('editorTitle').textContent = 'Create New Post';
+            document.getElementById('saveBtn').textContent = 'Create Post';
+        }
+
+        // Initialize - load all content by default
+        loadAllContent();
     </script>
 </body>
 </html>

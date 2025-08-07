@@ -166,19 +166,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const loadAll = req.query.loadAll === 'true';
       
-      // Try to get from Sanity first, fall back to local storage
-      let allPosts = await getAllBlogPostsFromSanity();
+      let allPosts = [];
       
-      // If Sanity returns no posts, fall back to local storage
-      if (!allPosts || allPosts.length === 0) {
-        console.log('Sanity returned no posts, using local storage fallback');
-        allPosts = await storageInstance.getBlogPosts();
+      if (loadAll) {
+        // Load all content including MemStorage when requested
+        console.log('Loading all blog content including local storage');
+        allPosts = await storageInstance.getAllBlogPosts();
+        
+        // Also try to get from Sanity and merge
+        try {
+          const sanityPosts = await getAllBlogPostsFromSanity();
+          if (sanityPosts && sanityPosts.length > 0) {
+            console.log(`Found ${sanityPosts.length} posts in Sanity, ${allPosts.length} in local storage`);
+            // Merge Sanity posts with local posts, avoiding duplicates
+            const sanityIds = new Set(sanityPosts.map(p => p.slug));
+            const uniqueLocalPosts = allPosts.filter(p => !sanityIds.has(p.slug));
+            allPosts = [...sanityPosts, ...uniqueLocalPosts];
+          }
+        } catch (error) {
+          console.warn('Could not load from Sanity, using local content only:', error);
+        }
+      } else {
+        // Default behavior - try Sanity first, fall back to local storage
+        allPosts = await getAllBlogPostsFromSanity();
+        
+        // If Sanity returns no posts, fall back to local storage
+        if (!allPosts || allPosts.length === 0) {
+          console.log('Sanity returned no posts, using local storage fallback');
+          allPosts = await storageInstance.getAllBlogPosts();
+        }
       }
       
-      const startIndex = (page - 1) * pageSize;
-      const endIndex = startIndex + pageSize;
-      const posts = allPosts.slice(startIndex, endIndex);
+      // Apply pagination only if not loading all content
+      let posts = allPosts;
+      if (!loadAll) {
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        posts = allPosts.slice(startIndex, endIndex);
+      }
       
       res.json({ 
         data: posts,
