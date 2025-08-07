@@ -10,6 +10,8 @@ export default defineConfig({
   projectId: '3prkr232',
   dataset: 'production',
   
+  studioHost: 'rbc-digital-agency',
+  
   plugins: [
     structureTool(),
     visionTool(),
