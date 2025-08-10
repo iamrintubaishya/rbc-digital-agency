@@ -10,7 +10,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  console.log(`[Vercel Blog Posts API] ${req.method} - Processing request`);
+  console.log(`[Vercel Blog Posts API] ${req.method} - Processing request - v2`);
 
   try {
     // For now, return the MemStorage blog posts directly to ensure the API works
