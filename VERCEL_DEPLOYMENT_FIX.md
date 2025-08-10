@@ -15,11 +15,6 @@ The production Vercel deployment at https://rbc-digital-agency.vercel.app/ was n
 {
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/public",
-  "functions": {
-    "api/*.ts": {
-      "runtime": "@vercel/node@3.0.7"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -32,6 +27,11 @@ The production Vercel deployment at https://rbc-digital-agency.vercel.app/ was n
   ]
 }
 ```
+
+**Key Changes:**
+- Removed explicit function runtime specification to use Vercel's default Node.js 18.x
+- Simplified configuration to avoid version conflicts
+- Maintained proper API routing for blog endpoints
 
 ### 2. Enhanced API Path Handling (`api/index.ts`)
 - Fixed path extraction to handle Vercel's URL rewriting
