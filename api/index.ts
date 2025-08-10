@@ -16,9 +16,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
+  console.log(`[Vercel] ${method} ${path} - Processing request`);
+
   try {
-    // Await storage initialization
-    const storageInstance = await storage;
+    // Await storage initialization with timeout and fallback
+    let storageInstance;
+    try {
+      storageInstance = await Promise.race([
+        storage,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Storage initialization timeout')), 10000)
+        )
+      ]);
+    } catch (storageError) {
+      console.error('[Vercel] Storage initialization failed:', storageError);
+      // Fallback to MemStorage for blog requests
+      if (path.includes('/blog/')) {
+        console.log('[Vercel] Using MemStorage fallback for blog request');
+        storageInstance = createMemStorageSync();
+      } else {
+        throw storageError;
+      }
+    }
 
     if (method === 'POST' && path.includes('/contacts')) {
       const validatedData = insertContactSchema.parse(req.body);
@@ -95,19 +114,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Individual blog post by slug
         const slug = path.split('/blog/posts/')[1].split('?')[0];
         console.log(`[Vercel] Fetching blog post: ${slug}`);
-        const post = await storageInstance.getBlogPostBySlug(slug);
-        if (post) {
-          return res.json({ data: post });
-        } else {
-          console.log(`[Vercel] Blog post not found: ${slug}`);
-          return res.status(404).json({ success: false, message: 'Blog post not found' });
+        
+        try {
+          const post = await storageInstance.getBlogPostBySlug(slug);
+          if (post) {
+            console.log(`[Vercel] Blog post found: ${post.title}`);
+            return res.json({ data: post });
+          } else {
+            console.log(`[Vercel] Blog post not found: ${slug}`);
+            return res.status(404).json({ success: false, message: 'Blog post not found' });
+          }
+        } catch (error) {
+          console.error(`[Vercel] Error fetching blog post ${slug}:`, error);
+          return res.status(500).json({ success: false, message: 'Error fetching blog post' });
         }
       } else {
         // List blog posts with pagination support  
+        console.log(`[Vercel] Fetching blog posts list`);
         const url = new URL(req.url || '', `http://${req.headers.host}`);
         const pageSize = parseInt(url.searchParams.get('pageSize') || '0');
-        let allPosts = await storageInstance.getBlogPosts();
-        console.log(`[Vercel] Blog posts found: ${allPosts.length}`);
+        
+        try {
+          let allPosts = await storageInstance.getBlogPosts();
+          console.log(`[Vercel] Blog posts found: ${allPosts.length}`);
         
         // Force initialization if no posts found (production fallback)
         if (allPosts.length === 0) {
@@ -190,20 +219,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
         
-        // Limit posts if pageSize is specified
-        const posts = pageSize > 0 ? allPosts.slice(0, pageSize) : allPosts;
-        
-        return res.json({ 
-          data: posts,
-          meta: {
-            pagination: {
-              page: 1,
-              pageSize: posts.length,
-              pageCount: 1,
-              total: allPosts.length,
+          // Limit posts if pageSize is specified
+          const posts = pageSize > 0 ? allPosts.slice(0, pageSize) : allPosts;
+          
+          console.log(`[Vercel] Returning ${posts.length} blog posts`);
+          return res.json({ 
+            data: posts,
+            meta: {
+              pagination: {
+                page: 1,
+                pageSize: posts.length,
+                pageCount: 1,
+                total: allPosts.length,
+              }
             }
+          });
+        } catch (error) {
+          console.error('[Vercel] Error fetching blog posts:', error);
+          // Ultimate fallback - return MemStorage posts
+          try {
+            console.log('[Vercel] Using ultimate MemStorage fallback');
+            const memStorage = createMemStorageSync();
+            const fallbackPosts = await memStorage.getBlogPosts();
+            const posts = pageSize > 0 ? fallbackPosts.slice(0, pageSize) : fallbackPosts;
+            console.log(`[Vercel] Fallback returning ${posts.length} blog posts`);
+            
+            return res.json({ 
+              data: posts,
+              meta: {
+                pagination: {
+                  page: 1,
+                  pageSize: posts.length,
+                  pageCount: 1,
+                  total: fallbackPosts.length,
+                }
+              }
+            });
+          } catch (fallbackError) {
+            console.error('[Vercel] Ultimate fallback failed:', fallbackError);
+            return res.status(500).json({ 
+              success: false, 
+              message: 'Unable to fetch blog posts',
+              error: error.message 
+            });
           }
-        });
+        }
       }
     }
 
