@@ -2,27 +2,22 @@
 {
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/public",
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/blog/posts/([^/]+)",
-      "dest": "/api/blog/[slug].ts?slug=$1"
+      "source": "/api/blog/posts/([^/]+)",
+      "destination": "/api/blog/[slug]?slug=$1"
     },
     {
-      "src": "/api/blog/posts",
-      "dest": "/api/blog/posts.ts"
+      "source": "/api/blog/posts",
+      "destination": "/api/blog/posts"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.ts"
+      "source": "/api/(.*)",
+      "destination": "/api/index?__path=$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
