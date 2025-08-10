@@ -21,16 +21,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     // Await storage initialization with timeout and fallback
-    let storageInstance;
+    let storageInstance: Awaited<typeof storage>;
     try {
       storageInstance = await Promise.race([
         storage,
-        new Promise((_, reject) => 
+        new Promise<never>((_, reject) => 
           setTimeout(() => reject(new Error('Storage initialization timeout')), 10000)
         )
       ]);
     } catch (storageError) {
-      console.error('[Vercel] Storage initialization failed:', storageError);
+      console.error('[Vercel] Storage initialization failed:', (storageError as Error).message);
       // Fallback to MemStorage for blog requests
       if (path.includes('/blog/')) {
         console.log('[Vercel] Using MemStorage fallback for blog request');
@@ -92,8 +92,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
           ];
           
-          for (const post of requiredPosts) {
-            const existing = allPosts.find(p => p.slug === post.slug);
+          for (const post of requiredPosts as any[]) {
+            const existing = allPosts.find((p: any) => p.slug === post.slug);
             if (!existing) {
               await storageInstance.createBlogPost(post);
               console.log('Created missing post:', post.title);
@@ -104,8 +104,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const finalPosts = await storageInstance.getBlogPosts();
         return res.json({ success: true, message: `Sync complete. Total posts: ${finalPosts.length}` });
       } catch (error) {
-        console.error('Sync failed:', error);
-        return res.status(500).json({ success: false, error: error.message });
+        console.error('Sync failed:', (error as Error).message);
+        return res.status(500).json({ success: false, error: (error as Error).message });
       }
     }
 
@@ -128,7 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(404).json({ success: false, message: 'Blog post not found' });
           }
         } catch (error) {
-          console.error(`[Vercel] Error fetching blog post ${slug}:`, error);
+          console.error(`[Vercel] Error fetching blog post ${slug}:`, (error as Error).message);
           return res.status(500).json({ success: false, message: 'Error fetching blog post' });
         }
       } else {
@@ -238,7 +238,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
           });
         } catch (error) {
-          console.error('[Vercel] Error fetching blog posts:', error);
+          console.error('[Vercel] Error fetching blog posts:', (error as Error).message);
           // Ultimate fallback - return MemStorage posts
           try {
             console.log('[Vercel] Using ultimate MemStorage fallback');
@@ -259,11 +259,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               }
             });
           } catch (fallbackError) {
-            console.error('[Vercel] Ultimate fallback failed:', fallbackError);
+            console.error('[Vercel] Ultimate fallback failed:', (fallbackError as Error).message);
             return res.status(500).json({ 
               success: false, 
               message: 'Unable to fetch blog posts',
-              error: error.message 
+              error: (error as Error).message 
             });
           }
         }
@@ -272,7 +272,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Update blog post by slug
     if (method === 'PATCH' && (path.includes('/blog/posts/') || path.includes('blog/posts/'))) {
-      const slug = path.split('/blog/posts/')[1].split('?')[0];
+      const slug = path.includes('/blog/posts/') 
+        ? path.split('/blog/posts/')[1].split('?')[0]
+        : path.split('blog/posts/')[1].split('?')[0];
       const existingPost = await storageInstance.getBlogPostBySlug(slug);
       if (!existingPost) {
         return res.status(404).json({ success: false, message: 'Blog post not found' });
