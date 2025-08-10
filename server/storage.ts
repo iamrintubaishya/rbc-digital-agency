@@ -207,7 +207,7 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async createContact(insertContact: InsertContact): Promise<Contact> {
+  async createContact(insertContact: InsertContact & { hubspotContactId?: string }): Promise<Contact> {
     const contact: Contact = {
       id: randomUUID(),
       firstName: insertContact.firstName,
@@ -216,6 +216,7 @@ export class MemStorage implements IStorage {
       phone: insertContact.phone ?? null,
       businessType: insertContact.businessType ?? null,
       challenge: insertContact.challenge ?? null,
+      hubspotContactId: insertContact.hubspotContactId ?? null,
       createdAt: new Date(),
     };
     this.contacts.set(contact.id, contact);

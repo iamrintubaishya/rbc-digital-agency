@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage, createMemStorageSync } from '../server/storage.js';
+import { storage, createMemStorageSync, MemStorage } from '../server/storage.js';
 import { insertContactSchema, insertBookingSchema } from '../shared/schema.js';
 import { z } from 'zod';
 
@@ -22,7 +22,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (method === 'POST' && path.includes('/contacts')) {
       const validatedData = insertContactSchema.parse(req.body);
-      const contact = await storageInstance.createContact(validatedData);
+      const contact = await storageInstance.createContact({
+        ...validatedData,
+        hubspotContactId: req.body.hubspotContactId || undefined
+      });
       return res.json({ success: true, contact });
     }
 
@@ -113,6 +116,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const memStorage = createMemStorageSync();
             allPosts = await memStorage.getBlogPosts();
             console.log(`[Vercel] MemStorage initialized with ${allPosts.length} posts`);
+            
+            // If database is available but empty, populate it
+            if (process.env.DATABASE_URL && allPosts.length > 0) {
+              console.log('[Vercel] Populating empty database with MemStorage data');
+              for (const post of allPosts) {
+                try {
+                  await storageInstance.createBlogPost({
+                    title: post.title,
+                    slug: post.slug,
+                    content: post.content,
+                    excerpt: post.excerpt ?? undefined,
+                    author: post.author ?? undefined,
+                    coverImage: post.coverImage ?? undefined,
+                    contentImages: post.contentImages ?? undefined,
+                    audioUrl: post.audioUrl ?? undefined,
+                    readingTime: post.readingTime ?? undefined,
+                    tags: post.tags ?? undefined,
+                    publishedAt: post.publishedAt?.toISOString(),
+                  });
+                } catch (insertError) {
+                  console.warn('[Vercel] Failed to insert post:', post.title, insertError);
+                }
+              }
+              // Refresh posts from database
+              try {
+                const dbPosts = await storageInstance.getBlogPosts();
+                if (dbPosts.length > 0) {
+                  allPosts = dbPosts;
+                  console.log(`[Vercel] Database populated, now has ${allPosts.length} posts`);
+                }
+              } catch (refreshError) {
+                console.warn('[Vercel] Failed to refresh posts from database:', refreshError);
+              }
+            }
           } catch (error) {
             console.error('[Vercel] MemStorage initialization failed:', error);
           }
@@ -124,7 +161,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.log('Auto-sync triggered: found', allPosts.length, 'posts, populating missing ones');
             
             // Use the MemStorage approach for fallback
-            const { MemStorage } = require('../server/storage.js');
             const memStorage = new MemStorage();
             const memPosts = await memStorage.getBlogPosts();
             
