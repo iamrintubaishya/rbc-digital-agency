@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage, createMemStorageSync, MemStorage } from '../server/storage.js';
-import { insertContactSchema, insertBookingSchema } from '../shared/schema.js';
+import { storage, createMemStorageSync, MemStorage } from '../server/storage';
+import { insertContactSchema, insertBookingSchema } from '../shared/schema';
 import { z } from 'zod';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

@@ -15,6 +15,7 @@ Code change policy: Always ask for permission before making code changes.
 ## Recent Changes (August 2025)
 
 ✅ **Replit Agent Migration Completed**: Successfully migrated from Replit Agent to standard Replit environment with full PostgreSQL integration
+✅ **Vercel API Routing Fixed**: Created dedicated API endpoints for blog functionality with proper Vercel serverless function routing
 ✅ **Database Integration Active**: Neon PostgreSQL database successfully connected with 10 blog posts and intelligent image fallback system
 ✅ **HubSpot CRM Connected**: Contact synchronization active for booking and contact form submissions
 ✅ **Production Blog Fix Enhanced**: Comprehensive fallback system ensures blogs work on both local and Vercel environments
