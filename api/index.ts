@@ -5,7 +5,8 @@ import { z } from 'zod';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { method } = req;
-  const path = req.url || '';
+  // Extract the path from the query parameter since Vercel rewrites the URL
+  const path = req.query.__path ? `/${req.query.__path}` : req.url || '';
 
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -65,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Blog sync endpoint for production fixes
-    if (method === 'POST' && path === '/api/blog/sync') {
+    if (method === 'POST' && (path === '/blog/sync' || path === 'blog/sync')) {
       try {
         const allPosts = await storageInstance.getBlogPosts();
         console.log('Sync endpoint called, current posts:', allPosts.length);
@@ -109,10 +110,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Blog API endpoints
-    if (method === 'GET' && path.includes('/blog/posts')) {
-      if (path.includes('/blog/posts/') && !path.endsWith('/blog/posts/')) {
+    if (method === 'GET' && (path.includes('blog/posts') || path.startsWith('/blog/posts'))) {
+      if ((path.includes('blog/posts/') && !path.endsWith('blog/posts/')) || (path.startsWith('blog/posts/') && !path.endsWith('blog/posts/'))) {
         // Individual blog post by slug
-        const slug = path.split('/blog/posts/')[1].split('?')[0];
+        const slug = path.includes('/blog/posts/') 
+          ? path.split('/blog/posts/')[1].split('?')[0]
+          : path.split('blog/posts/')[1].split('?')[0];
         console.log(`[Vercel] Fetching blog post: ${slug}`);
         
         try {
@@ -268,7 +271,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Update blog post by slug
-    if (method === 'PATCH' && path.includes('/blog/posts/')) {
+    if (method === 'PATCH' && (path.includes('/blog/posts/') || path.includes('blog/posts/'))) {
       const slug = path.split('/blog/posts/')[1].split('?')[0];
       const existingPost = await storageInstance.getBlogPostBySlug(slug);
       if (!existingPost) {

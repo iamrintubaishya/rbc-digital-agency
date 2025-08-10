@@ -2,10 +2,15 @@
 {
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/public",
+  "functions": {
+    "api/index.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api"
+      "destination": "/api/index?__path=$1"
     },
     {
       "source": "/(.*)",
