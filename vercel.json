@@ -4,6 +4,7 @@
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/public",
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "BLOG_FIX_VERSION": "inline-html-v1"
   }
 }
