@@ -1,23 +1,5 @@
 
 {
   "buildCommand": "npm run vercel-build",
-  "outputDirectory": "dist/public",
-  "rewrites": [
-    {
-      "source": "/api/blog/posts/([^/]+)",
-      "destination": "/api/blog/[slug]?slug=$1"
-    },
-    {
-      "source": "/api/blog/posts",
-      "destination": "/api/blog/posts"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index?__path=$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
+  "outputDirectory": "dist/public"
 }
