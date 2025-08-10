@@ -16,8 +16,8 @@ The production Vercel deployment at https://rbc-digital-agency.vercel.app/ was n
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/public",
   "functions": {
-    "api/index.ts": {
-      "runtime": "nodejs18.x"
+    "api/*.ts": {
+      "runtime": "@vercel/node@3.0.7"
     }
   },
   "rewrites": [
