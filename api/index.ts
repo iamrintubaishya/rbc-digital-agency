@@ -58,9 +58,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log(`[Vercel API] ${method} ${url}`);
 
   try {
+    // Log everything for debugging
+    console.log(`[Vercel API] Full URL: ${url}`);
+    console.log(`[Vercel API] Host: ${req.headers.host}`);
+    console.log(`[Vercel API] Method: ${method}`);
+    
     // Parse the URL to get the path
     const urlObj = new URL(url || '', `http://${req.headers.host}`);
     const pathname = urlObj.pathname;
+    console.log(`[Vercel API] Parsed pathname: ${pathname}`);
     
     // Route: GET /api/blog/posts
     if (method === 'GET' && pathname === '/api/blog/posts') {
