@@ -8,7 +8,6 @@ import { AudioPlayer } from "../components/ui/audio-player";
 import { CommentSection } from "../components/ui/comment-section";
 import { useToast } from "../hooks/use-toast";
 import { Link } from "wouter";
-import { getBlogPostBySlug } from "../data/blog-posts";
 
 interface BlogPost {
   id: string;
@@ -54,26 +53,15 @@ export function BlogPostPage() {
   const { data: blogData, isLoading, error } = useQuery<{ data: BlogPost }>({
     queryKey: ['/api/blog/posts', slug],
     queryFn: async () => {
-      try {
-        const response = await fetch(`/api/blog/posts/${slug}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch blog post: ${response.status}`);
-        }
-        return response.json();
-      } catch (err) {
-        // Try local fallback data
-        const localPost = getBlogPostBySlug(slug || '');
-        if (localPost) {
-          return { data: localPost };
-        }
-        throw err;
+      const response = await fetch(`/api/blog/posts/${slug}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch blog post: ${response.status}`);
       }
+      return response.json();
     },
     enabled: !!slug,
-    retry: 1,
+    retry: 3,
     staleTime: 1000 * 60 * 5, // 5 minutes
-    // Provide immediate fallback data
-    placeholderData: slug ? { data: getBlogPostBySlug(slug) } : undefined,
   });
 
   const post = blogData?.data;

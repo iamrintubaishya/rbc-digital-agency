@@ -1,21 +1,5 @@
 
 {
-  "version": 2,
   "buildCommand": "npm run vercel-build",
-  "outputDirectory": "dist/public",
-  "env": {
-    "NODE_ENV": "production",
-    "BLOG_FIX_VERSION": "inline-html-v2-forced-rebuild"
-  },
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    }
-  ]
+  "outputDirectory": "dist/public"
 }
