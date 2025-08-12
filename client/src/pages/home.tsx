@@ -68,6 +68,7 @@ export default function Home() {
               <p className="text-lg text-slate-600 dark:text-slate-400">
                 Expert insights and proven strategies to grow your business
               </p>
+              {/* Blog content v2.1 - forced cache bust */}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

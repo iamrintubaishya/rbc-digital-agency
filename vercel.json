@@ -5,6 +5,17 @@
   "outputDirectory": "dist/public",
   "env": {
     "NODE_ENV": "production",
-    "BLOG_FIX_VERSION": "inline-html-v1"
-  }
+    "BLOG_FIX_VERSION": "inline-html-v2-forced-rebuild"
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
 }
