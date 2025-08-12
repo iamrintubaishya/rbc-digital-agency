@@ -1,6 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-// Hardcoded blog posts for production reliability
+// Simple JavaScript API for individual blog posts
 const BLOG_POSTS = [
   {
     id: "a9dd3ba1-5405-457c-a68b-dae537e6076c",
@@ -43,86 +41,40 @@ const BLOG_POSTS = [
   }
 ];
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { method, url } = req;
-
+module.exports = async (req, res) => {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (method === 'OPTIONS') {
+  if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  console.log(`[Vercel API] ${method} ${url}`);
+  const { slug } = req.query;
+  console.log(`[Blog API] ${req.method} - Looking for post: ${slug}`);
 
   try {
-    // Log everything for debugging
-    console.log(`[Vercel API] Full URL: ${url}`);
-    console.log(`[Vercel API] Host: ${req.headers.host}`);
-    console.log(`[Vercel API] Method: ${method}`);
-    
-    // Parse the URL to get the path
-    const urlObj = new URL(url || '', `http://${req.headers.host}`);
-    const pathname = urlObj.pathname;
-    console.log(`[Vercel API] Parsed pathname: ${pathname}`);
-    
-    // Route: GET /api/blog/posts
-    if (method === 'GET' && pathname === '/api/blog/posts') {
-      const pageSize = parseInt(urlObj.searchParams.get('pageSize') || '0');
-      const posts = pageSize > 0 ? BLOG_POSTS.slice(0, pageSize) : BLOG_POSTS;
-      
-      console.log(`[Vercel API] Returning ${posts.length} blog posts`);
-      return res.json({
-        data: posts,
-        meta: {
-          pagination: {
-            page: 1,
-            pageSize: posts.length,
-            pageCount: 1,
-            total: BLOG_POSTS.length,
-          }
-        }
-      });
-    }
-
-    // Route: GET /api/blog/posts/:slug
-    if (method === 'GET' && pathname.startsWith('/api/blog/posts/')) {
-      const slug = pathname.replace('/api/blog/posts/', '');
+    if (req.method === 'GET' && slug) {
       const post = BLOG_POSTS.find(p => p.slug === slug);
       
       if (post) {
-        console.log(`[Vercel API] Found blog post: ${post.title}`);
+        console.log(`[Blog API] Found blog post: ${post.title}`);
         return res.json({ data: post });
       } else {
-        console.log(`[Vercel API] Blog post not found: ${slug}`);
+        console.log(`[Blog API] Blog post not found: ${slug}`);
         return res.status(404).json({ success: false, message: 'Blog post not found' });
       }
     }
 
-    // Route: GET /api/test
-    if (method === 'GET' && pathname === '/api/test') {
-      return res.json({
-        status: 'API working',
-        timestamp: new Date().toISOString(),
-        blogPosts: BLOG_POSTS.length
-      });
-    }
-
-    // Default 404 for unknown routes
-    return res.status(404).json({ 
-      success: false, 
-      message: 'Route not found',
-      path: pathname 
-    });
+    return res.status(405).json({ success: false, message: 'Method not allowed' });
 
   } catch (error) {
-    console.error('[Vercel API] Handler error:', (error as Error).message);
+    console.error('[Blog API] Error:', error.message);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
-      error: (error as Error).message
+      error: error.message
     });
   }
-}
+};

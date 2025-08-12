@@ -1,0 +1,60 @@
+[14:04:44.373] Running build in Washington, D.C., USA (East) – iad1
+[14:04:44.374] Build machine configuration: 2 cores, 8 GB
+[14:04:44.392] Cloning github.com/iamrintubaishya/rbc-digital-agency (Branch: main2, Commit: 8f78942)
+[14:04:44.697] Cloning completed: 304.000ms
+[14:04:44.732] Found .vercelignore
+[14:04:44.737] Removed 26 ignored files defined in .vercelignore
+[14:04:44.737]   /.git/config
+[14:04:44.737]   /.git/description
+[14:04:44.737]   /.git/FETCH_HEAD
+[14:04:44.737]   /.git/HEAD
+[14:04:44.737]   /.git/hooks/applypatch-msg.sample
+[14:04:44.737]   /.git/hooks/commit-msg.sample
+[14:04:44.737]   /.git/hooks/fsmonitor-watchman.sample
+[14:04:44.737]   /.git/hooks/post-update.sample
+[14:04:44.737]   /.git/hooks/pre-applypatch.sample
+[14:04:44.737]   /.git/hooks/pre-commit.sample
+[14:04:48.049] Restored build cache from previous deployment (99wiujwdVzAFK3WzDaVako46GcZz)
+[14:04:52.974] Running "vercel build"
+[14:04:53.458] Vercel CLI 44.7.3
+[14:04:54.214] Installing dependencies...
+[14:04:55.889] 
+[14:04:55.890] up to date in 1s
+[14:04:55.890] 
+[14:04:55.890] 89 packages are looking for funding
+[14:04:55.891]   run `npm fund` for details
+[14:04:56.032] 
+[14:04:56.032] > rest-express@1.0.0 vercel-build
+[14:04:56.033] > vite build
+[14:04:56.033] 
+[14:04:56.363] [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+[14:04:56.420] transforming...
+[14:05:01.315] [32m✓[39m 2033 modules transformed.
+[14:05:01.663] rendering chunks...
+[14:05:01.674] computing gzip size...
+[14:05:01.693] [2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  0.63 kB[22m[1m[22m[2m │ gzip:   0.38 kB[22m
+[14:05:01.693] [2m../dist/public/[22m[2massets/[22m[35mindex-ZTa9jJmM.css  [39m[1m[2m100.94 kB[22m[1m[22m[2m │ gzip:  15.96 kB[22m
+[14:05:01.693] [2m../dist/public/[22m[2massets/[22m[36mindex-CwhuozLn.js   [39m[1m[2m433.68 kB[22m[1m[22m[2m │ gzip: 132.12 kB[22m
+[14:05:01.694] [32m✓ built in 5.30s[39m
+[14:05:01.786] Running "npm run vercel-build"
+[14:05:01.895] 
+[14:05:01.896] > rest-express@1.0.0 vercel-build
+[14:05:01.896] > vite build
+[14:05:01.896] 
+[14:05:02.143] [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+[14:05:02.190] transforming...
+[14:05:06.657] [32m✓[39m 2033 modules transformed.
+[14:05:06.977] rendering chunks...
+[14:05:06.986] computing gzip size...
+[14:05:07.001] [2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  0.63 kB[22m[1m[22m[2m │ gzip:   0.38 kB[22m
+[14:05:07.002] [2m../dist/public/[22m[2massets/[22m[35mindex-ZTa9jJmM.css  [39m[1m[2m100.94 kB[22m[1m[22m[2m │ gzip:  15.96 kB[22m
+[14:05:07.002] [2m../dist/public/[22m[2massets/[22m[36mindex-CwhuozLn.js   [39m[1m[2m433.68 kB[22m[1m[22m[2m │ gzip: 132.12 kB[22m
+[14:05:07.002] [32m✓ built in 4.84s[39m
+[14:05:07.281] Using TypeScript 5.9.2 (local user-provided)
+[14:05:12.887] Build Completed in /vercel/output [19s]
+[14:05:13.016] Deploying outputs...
+[14:05:18.652] Deployment completed
+[14:05:19.527] Creating build cache...
+[14:05:49.441] Created build cache: 29.914s
+[14:05:49.442] Uploading build cache [143.89 MB]
+[14:05:52.054] Build cache uploaded: 2.612s
