@@ -1,12 +1,50 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage, createMemStorageSync, MemStorage } from '../server/storage';
-import { insertContactSchema, insertBookingSchema } from '../shared/schema';
-import { z } from 'zod';
+
+// Hardcoded blog posts for production reliability
+const BLOG_POSTS = [
+  {
+    id: "a9dd3ba1-5405-457c-a68b-dae537e6076c",
+    title: "5 Digital Marketing Strategies That Drive Local Business Growth",
+    slug: "5-digital-marketing-strategies-local-business-growth",
+    content: "# 5 Digital Marketing Strategies That Drive Local Business Growth\n\nLocal businesses face unique challenges in today's digital landscape. With the right strategies, you can compete effectively against larger corporations and build a strong local presence. Here are five proven digital marketing strategies that will help your local business thrive.\n\n## 1. Local SEO Optimization\n\nLocal SEO is the foundation of digital marketing success for service-based businesses. When potential customers search for services in your area, you want to be the first business they find.\n\n### Google My Business Optimization\nClaim and optimize your Google My Business profile with complete, accurate information. Add high-quality photos, respond to reviews promptly, and post regular updates about your services and special offers.\n\n### Local Citations and NAP Consistency\nEnsure your business Name, Address, and Phone number (NAP) are consistent across all online directories, review sites, and social media platforms.\n\n## 2. Content Marketing That Connects\n\nCreate valuable content that addresses your local community's needs and interests. Blog about local events, share customer success stories, and provide helpful tips related to your industry.\n\n### Community-Focused Content\n- Write about local events and community involvement\n- Feature customer testimonials and case studies\n- Share behind-the-scenes content to humanize your brand\n\n## 3. Social Media Engagement\n\nBuild relationships with your local community through authentic social media engagement. Focus on platforms where your target customers are most active.\n\n### Platform-Specific Strategies\n- Facebook: Join local community groups and share valuable insights\n- Instagram: Use local hashtags and geotags to increase visibility\n- LinkedIn: Connect with other local business owners for partnerships\n\n## 4. Online Reputation Management\n\nYour online reputation directly impacts your business success. Actively manage and respond to customer reviews across all platforms.\n\n### Review Response Strategy\n- Respond promptly to all reviews, both positive and negative\n- Thank customers for positive feedback\n- Address concerns professionally and offer solutions\n\n## 5. Targeted Digital Advertising\n\nUse digital advertising platforms to reach potential customers in your specific service area with laser precision.\n\n### Local Advertising Tactics\n- Google Ads with geographic targeting\n- Facebook and Instagram ads with location-based audiences\n- Retargeting campaigns for website visitors\n\nImplementing these five strategies will significantly improve your local business's digital presence and drive more qualified leads. Start with local SEO and gradually expand to include all five areas for maximum impact.",
+    excerpt: "Discover five proven digital marketing strategies that help local businesses compete effectively and build a strong online presence in their community.",
+    author: "Michael Rodriguez",
+    coverImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+    readingTime: "8 min read",
+    tags: ["Digital Marketing", "Local SEO", "Social Media"],
+    publishedAt: "2024-12-01T00:00:00.000Z",
+    createdAt: "2024-12-01T00:00:00.000Z"
+  },
+  {
+    id: "b8cc2aa0-4304-356b-a57b-cde537e6076d",
+    title: "Analytics and Data-Driven Marketing: Making Smarter Decisions",
+    slug: "analytics-data-driven-marketing-decisions",
+    content: "# Analytics and Data-Driven Marketing: Making Smarter Decisions\n\nIn today's competitive landscape, successful marketing relies heavily on data-driven decision making. Analytics provide the insights needed to understand customer behavior, optimize campaigns, and maximize return on investment.\n\n## Setting Up Comprehensive Analytics\n\nStart with Google Analytics 4 to track website performance, user behavior, and conversion paths. Implement conversion tracking for all important actions: form submissions, phone calls, downloads, and purchases.\n\n### Essential Tracking Setup\n- Install Google Analytics 4 with enhanced ecommerce\n- Set up conversion goals for key business actions\n- Implement UTM parameters for campaign tracking\n- Configure cross-domain tracking if needed\n\n## Key Performance Indicators (KPIs)\n\nFocus on metrics that directly impact business goals. Track leading indicators like traffic and engagement alongside lagging indicators like conversions and revenue.\n\n### Primary KPIs to Monitor\n- Website traffic and user engagement\n- Conversion rates by traffic source\n- Customer acquisition cost (CAC)\n- Customer lifetime value (CLV)\n- Return on ad spend (ROAS)\n\n## Customer Journey Analysis\n\nMap the customer journey from awareness to conversion and beyond. Identify touchpoints where customers interact with your brand and measure the effectiveness of each channel.\n\n### Multi-Touch Attribution\nImplement attribution modeling to understand how different marketing efforts contribute to conversions. This helps you allocate budget more effectively and optimize underperforming channels.\n\n## A/B Testing and Experimentation\n\nSystematic testing drives continuous improvement. Test everything from email subject lines to landing page designs. Use statistical significance to ensure reliable results.\n\n### Testing Best Practices\n- Test one element at a time for clear results\n- Run tests for sufficient duration to account for variations\n- Use statistical significance calculators\n- Document and share learnings across teams\n\nBy embracing data-driven marketing, you'll make more informed decisions, optimize your campaigns more effectively, and achieve better results from your marketing investments.",
+    excerpt: "Learn how to leverage analytics and data science to make smarter marketing decisions that drive real business growth.",
+    author: "Dr. Sarah Kim",
+    coverImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+    readingTime: "10 min read",
+    tags: ["Analytics", "Data Science", "Marketing Strategy"],
+    publishedAt: "2024-11-25T00:00:00.000Z",
+    createdAt: "2024-11-25T00:00:00.000Z"
+  },
+  {
+    id: "c7bb1990-3203-245a-956a-bcd537e6076e",
+    title: "Social Media Marketing for Local Service Businesses",
+    slug: "social-media-marketing-local-service-businesses",
+    content: "# Social Media Marketing for Local Service Businesses\n\nSocial media has become an essential channel for local service businesses to connect with customers, build brand awareness, and drive bookings. This guide covers platform-specific strategies for maximum impact.\n\n## Choosing the Right Platforms\n\nNot all social media platforms are equally effective for local service businesses. Focus your efforts on platforms where your target customers are most active.\n\n### Platform Recommendations\n- **Facebook**: Best for reaching local audiences and community engagement\n- **Instagram**: Perfect for visual content and younger demographics\n- **LinkedIn**: Ideal for B2B services and professional networking\n- **Google My Business**: Essential for local visibility and reviews\n\n## Creating Engaging Local Content\n\nShare content that resonates with your local community. Post about local events, feature customer success stories, and showcase your involvement in community activities.\n\n### Content Ideas\n- Behind-the-scenes glimpses of your business\n- Customer testimonials and before/after photos\n- Local event participation and sponsorships\n- Educational content related to your services\n- Community spotlights and partnerships\n\n## Building Local Community Engagement\n\nJoin local Facebook groups and participate in community discussions. Share valuable insights and help answer questions without being overly promotional.\n\n### Engagement Strategies\n- Respond promptly to comments and messages\n- Share and comment on other local businesses' posts\n- Participate in local hashtag conversations\n- Host social media contests and giveaways\n\n## Leveraging User-Generated Content\n\nEncourage customers to share photos and reviews of your services. Create branded hashtags for your business and local area.\n\n### UGC Tactics\n- Create a unique hashtag for your business\n- Encourage photo sharing with incentives\n- Repost customer content (with permission)\n- Feature customer stories and testimonials\n\nConsistent, authentic social media marketing builds trust with your local community and creates a steady stream of qualified leads for your service business.",
+    excerpt: "Discover proven social media strategies that help local service businesses build communities and convert followers into customers.",
+    author: "Jessica Chen",
+    coverImage: "https://images.unsplash.com/photo-1611926653458-09294b3142bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+    readingTime: "7 min read",
+    tags: ["Social Media", "Local Marketing", "Community Building"],
+    publishedAt: "2024-11-20T00:00:00.000Z",
+    createdAt: "2024-11-20T00:00:00.000Z"
+  }
+];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { method } = req;
-  // Extract the path from the query parameter since Vercel rewrites the URL
-  const path = req.query.__path ? `/${req.query.__path}` : req.url || '';
+  const { method, url } = req;
 
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,291 +55,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  console.log(`[Vercel] ${method} ${path} - Processing request`);
+  console.log(`[Vercel API] ${method} ${url}`);
 
   try {
-    // Await storage initialization with timeout and fallback
-    let storageInstance: Awaited<typeof storage>;
-    try {
-      storageInstance = await Promise.race([
-        storage,
-        new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Storage initialization timeout')), 10000)
-        )
-      ]);
-    } catch (storageError) {
-      console.error('[Vercel] Storage initialization failed:', (storageError as Error).message);
-      // Fallback to MemStorage for blog requests
-      if (path.includes('/blog/')) {
-        console.log('[Vercel] Using MemStorage fallback for blog request');
-        storageInstance = createMemStorageSync();
-      } else {
-        throw storageError;
-      }
-    }
-
-    if (method === 'POST' && path.includes('/contacts')) {
-      const validatedData = insertContactSchema.parse(req.body);
-      const contact = await storageInstance.createContact({
-        ...validatedData,
-        hubspotContactId: req.body.hubspotContactId || undefined
-      });
-      return res.json({ success: true, contact });
-    }
-
-    if (method === 'POST' && path.includes('/bookings')) {
-      const validatedData = insertBookingSchema.parse(req.body);
-      const booking = await storageInstance.createBooking(validatedData);
-      return res.json({ success: true, booking });
-    }
-
-    if (method === 'GET' && path.includes('/contacts')) {
-      const contacts = await storageInstance.getContacts();
-      return res.json(contacts);
-    }
-
-    if (method === 'GET' && path.includes('/bookings')) {
-      const bookings = await storageInstance.getBookings();
-      return res.json(bookings);
-    }
-
-    // Blog sync endpoint for production fixes
-    if (method === 'POST' && (path === '/blog/sync' || path === 'blog/sync')) {
-      try {
-        const allPosts = await storageInstance.getBlogPosts();
-        console.log('Sync endpoint called, current posts:', allPosts.length);
-        
-        if (allPosts.length < 10) {
-          // Force population of missing posts
-          const requiredPosts = [
-            {
-              title: "The Complete Guide to Local SEO for Service Businesses",
-              slug: "complete-guide-local-seo-service-businesses",
-              content: "Local SEO is the foundation of digital marketing success for service-based businesses...",
-              excerpt: "Master local SEO strategies that help service businesses dominate their geographic markets.",
-              author: "Michael Rodriguez",
-              publishedAt: "2024-12-01T00:00:00.000Z"
-            },
-            {
-              title: "Analytics and Data-Driven Marketing: Making Smarter Decisions", 
-              slug: "analytics-data-driven-marketing-decisions",
-              content: "In today's competitive landscape, successful marketing relies heavily on data-driven decision making...",
-              excerpt: "Learn how to leverage analytics and data science to make smarter marketing decisions.",
-              author: "Dr. Sarah Kim",
-              publishedAt: "2024-11-25T00:00:00.000Z"
-            }
-          ];
-          
-          for (const post of requiredPosts as any[]) {
-            const existing = allPosts.find((p: any) => p.slug === post.slug);
-            if (!existing) {
-              await storageInstance.createBlogPost(post);
-              console.log('Created missing post:', post.title);
-            }
-          }
-        }
-        
-        const finalPosts = await storageInstance.getBlogPosts();
-        return res.json({ success: true, message: `Sync complete. Total posts: ${finalPosts.length}` });
-      } catch (error) {
-        console.error('Sync failed:', (error as Error).message);
-        return res.status(500).json({ success: false, error: (error as Error).message });
-      }
-    }
-
-    // Blog API endpoints
-    if (method === 'GET' && (path.includes('blog/posts') || path.startsWith('/blog/posts'))) {
-      if ((path.includes('blog/posts/') && !path.endsWith('blog/posts/')) || (path.startsWith('blog/posts/') && !path.endsWith('blog/posts/'))) {
-        // Individual blog post by slug
-        const slug = path.includes('/blog/posts/') 
-          ? path.split('/blog/posts/')[1].split('?')[0]
-          : path.split('blog/posts/')[1].split('?')[0];
-        console.log(`[Vercel] Fetching blog post: ${slug}`);
-        
-        try {
-          const post = await storageInstance.getBlogPostBySlug(slug);
-          if (post) {
-            console.log(`[Vercel] Blog post found: ${post.title}`);
-            return res.json({ data: post });
-          } else {
-            console.log(`[Vercel] Blog post not found: ${slug}`);
-            return res.status(404).json({ success: false, message: 'Blog post not found' });
-          }
-        } catch (error) {
-          console.error(`[Vercel] Error fetching blog post ${slug}:`, (error as Error).message);
-          return res.status(500).json({ success: false, message: 'Error fetching blog post' });
-        }
-      } else {
-        // List blog posts with pagination support  
-        console.log(`[Vercel] Fetching blog posts list`);
-        const url = new URL(req.url || '', `http://${req.headers.host}`);
-        const pageSize = parseInt(url.searchParams.get('pageSize') || '0');
-        
-        try {
-          let allPosts = await storageInstance.getBlogPosts();
-          console.log(`[Vercel] Blog posts found: ${allPosts.length}`);
-        
-        // Force initialization if no posts found (production fallback)
-        if (allPosts.length === 0) {
-          console.log('[Vercel] No posts found, forcing MemStorage initialization');
-          try {
-            const memStorage = createMemStorageSync();
-            allPosts = await memStorage.getBlogPosts();
-            console.log(`[Vercel] MemStorage initialized with ${allPosts.length} posts`);
-            
-            // If database is available but empty, populate it
-            if (process.env.DATABASE_URL && allPosts.length > 0) {
-              console.log('[Vercel] Populating empty database with MemStorage data');
-              for (const post of allPosts) {
-                try {
-                  await storageInstance.createBlogPost({
-                    title: post.title,
-                    slug: post.slug,
-                    content: post.content,
-                    excerpt: post.excerpt ?? undefined,
-                    author: post.author ?? undefined,
-                    coverImage: post.coverImage ?? undefined,
-                    contentImages: post.contentImages ?? undefined,
-                    audioUrl: post.audioUrl ?? undefined,
-                    readingTime: post.readingTime ?? undefined,
-                    tags: post.tags ?? undefined,
-                    publishedAt: post.publishedAt?.toISOString(),
-                  });
-                } catch (insertError) {
-                  console.warn('[Vercel] Failed to insert post:', post.title, insertError);
-                }
-              }
-              // Refresh posts from database
-              try {
-                const dbPosts = await storageInstance.getBlogPosts();
-                if (dbPosts.length > 0) {
-                  allPosts = dbPosts;
-                  console.log(`[Vercel] Database populated, now has ${allPosts.length} posts`);
-                }
-              } catch (refreshError) {
-                console.warn('[Vercel] Failed to refresh posts from database:', refreshError);
-              }
-            }
-          } catch (error) {
-            console.error('[Vercel] MemStorage initialization failed:', error);
-          }
-        }
-        
-        // Auto-sync missing posts if database exists but has fewer than expected
-        if (allPosts.length > 0 && allPosts.length < 10 && process.env.DATABASE_URL) {
-          try {
-            console.log('Auto-sync triggered: found', allPosts.length, 'posts, populating missing ones');
-            
-            // Use the MemStorage approach for fallback
-            const memStorage = new MemStorage();
-            const memPosts = await memStorage.getBlogPosts();
-            
-            for (const memPost of memPosts) {
-              const existing = allPosts.find(p => p.slug === memPost.slug);
-              if (!existing) {
-                console.log('Adding missing post:', memPost.title);
-                await storageInstance.createBlogPost({
-                  title: memPost.title,
-                  slug: memPost.slug,
-                  content: memPost.content,
-                  excerpt: memPost.excerpt ?? undefined,
-                  author: memPost.author ?? undefined,
-                  coverImage: memPost.coverImage ?? undefined,
-                  contentImages: memPost.contentImages ?? undefined,
-                  audioUrl: memPost.audioUrl ?? undefined,
-                  readingTime: memPost.readingTime ?? undefined,
-                  tags: memPost.tags ?? undefined,
-                  publishedAt: memPost.publishedAt?.toISOString(),
-                });
-              }
-            }
-            allPosts = await storageInstance.getBlogPosts();
-            console.log('Auto-sync completed, now have', allPosts.length, 'posts');
-          } catch (error) {
-            console.warn('Auto-sync failed:', error);
-          }
-        }
-        
-          // Limit posts if pageSize is specified
-          const posts = pageSize > 0 ? allPosts.slice(0, pageSize) : allPosts;
-          
-          console.log(`[Vercel] Returning ${posts.length} blog posts`);
-          return res.json({ 
-            data: posts,
-            meta: {
-              pagination: {
-                page: 1,
-                pageSize: posts.length,
-                pageCount: 1,
-                total: allPosts.length,
-              }
-            }
-          });
-        } catch (error) {
-          console.error('[Vercel] Error fetching blog posts:', (error as Error).message);
-          // Ultimate fallback - return MemStorage posts
-          try {
-            console.log('[Vercel] Using ultimate MemStorage fallback');
-            const memStorage = createMemStorageSync();
-            const fallbackPosts = await memStorage.getBlogPosts();
-            const posts = pageSize > 0 ? fallbackPosts.slice(0, pageSize) : fallbackPosts;
-            console.log(`[Vercel] Fallback returning ${posts.length} blog posts`);
-            
-            return res.json({ 
-              data: posts,
-              meta: {
-                pagination: {
-                  page: 1,
-                  pageSize: posts.length,
-                  pageCount: 1,
-                  total: fallbackPosts.length,
-                }
-              }
-            });
-          } catch (fallbackError) {
-            console.error('[Vercel] Ultimate fallback failed:', (fallbackError as Error).message);
-            return res.status(500).json({ 
-              success: false, 
-              message: 'Unable to fetch blog posts',
-              error: (error as Error).message 
-            });
-          }
-        }
-      }
-    }
-
-    // Update blog post by slug
-    if (method === 'PATCH' && (path.includes('/blog/posts/') || path.includes('blog/posts/'))) {
-      const slug = path.includes('/blog/posts/') 
-        ? path.split('/blog/posts/')[1].split('?')[0]
-        : path.split('blog/posts/')[1].split('?')[0];
-      const existingPost = await storageInstance.getBlogPostBySlug(slug);
-      if (!existingPost) {
-        return res.status(404).json({ success: false, message: 'Blog post not found' });
-      }
+    // Parse the URL to get the path
+    const urlObj = new URL(url || '', `http://${req.headers.host}`);
+    const pathname = urlObj.pathname;
+    
+    // Route: GET /api/blog/posts
+    if (method === 'GET' && pathname === '/api/blog/posts') {
+      const pageSize = parseInt(urlObj.searchParams.get('pageSize') || '0');
+      const posts = pageSize > 0 ? BLOG_POSTS.slice(0, pageSize) : BLOG_POSTS;
       
-      const updatedPost = await storageInstance.updateBlogPost(existingPost.id, req.body);
-      if (updatedPost) {
-        return res.json({ success: true, data: updatedPost });
+      console.log(`[Vercel API] Returning ${posts.length} blog posts`);
+      return res.json({
+        data: posts,
+        meta: {
+          pagination: {
+            page: 1,
+            pageSize: posts.length,
+            pageCount: 1,
+            total: BLOG_POSTS.length,
+          }
+        }
+      });
+    }
+
+    // Route: GET /api/blog/posts/:slug
+    if (method === 'GET' && pathname.startsWith('/api/blog/posts/')) {
+      const slug = pathname.replace('/api/blog/posts/', '');
+      const post = BLOG_POSTS.find(p => p.slug === slug);
+      
+      if (post) {
+        console.log(`[Vercel API] Found blog post: ${post.title}`);
+        return res.json({ data: post });
       } else {
+        console.log(`[Vercel API] Blog post not found: ${slug}`);
         return res.status(404).json({ success: false, message: 'Blog post not found' });
       }
     }
 
-    return res.status(404).json({ success: false, message: 'Not found' });
+    // Route: GET /api/test
+    if (method === 'GET' && pathname === '/api/test') {
+      return res.json({
+        status: 'API working',
+        timestamp: new Date().toISOString(),
+        blogPosts: BLOG_POSTS.length
+      });
+    }
+
+    // Default 404 for unknown routes
+    return res.status(404).json({ 
+      success: false, 
+      message: 'Route not found',
+      path: pathname 
+    });
 
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid form data", 
-        errors: error.errors 
-      });
-    } else {
-      return res.status(500).json({ 
-        success: false, 
-        message: "Internal server error" 
-      });
-    }
+    console.error('[Vercel API] Handler error:', (error as Error).message);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: (error as Error).message
+    });
   }
 }
