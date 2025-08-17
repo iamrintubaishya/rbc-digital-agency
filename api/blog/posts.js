@@ -1,5 +1,5 @@
-// Vercel serverless function for blog posts
-export default function handler(req, res) {
+// Vercel serverless function for blog posts - CommonJS format
+module.exports = async (req, res) => {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -166,4 +166,4 @@ export default function handler(req, res) {
       message: error.message 
     });
   }
-}
+};
