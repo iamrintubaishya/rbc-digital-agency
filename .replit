@@ -8,8 +8,7 @@ packages = ["rsync"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["npm", "run", "start"]
-build = ["npm", "run", "build"]
+run = ["sh", "-c", "npm run dev"]
 
 [[deployment.rewrites]]
 from = "/*"
