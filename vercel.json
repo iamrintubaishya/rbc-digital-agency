@@ -1,5 +1,27 @@
 
 {
   "buildCommand": "npm run vercel-build",
-  "outputDirectory": "dist/public"
+  "outputDirectory": "dist/public",
+  "functions": {
+    "api/blog/posts.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/blog/[slug].js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/blog/posts",
+      "dest": "/api/blog/posts.js"
+    },
+    {
+      "src": "/api/blog/([^/]+)",
+      "dest": "/api/blog/[slug].js?slug=$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
