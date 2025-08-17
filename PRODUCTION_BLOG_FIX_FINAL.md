@@ -14,18 +14,15 @@ The production site at https://rbc-digital-agency.vercel.app/ was showing "Unabl
 - Changed from `export default function handler` to `module.exports = async (req, res) =>`
 - This ensures Vercel properly recognizes them as serverless functions
 
-### 2. Simplified vercel.json Configuration
+### 2. Fixed vercel.json Configuration
 ```json
 {
   "buildCommand": "npm run vercel-build",
-  "outputDirectory": "dist/public",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  "outputDirectory": "dist/public"
 }
 ```
+- Removed invalid runtime specification that was causing "Function Runtimes must have a valid version" error
+- Vercel will now use default Node.js runtime which properly supports CommonJS modules
 
 ### 3. Added Comprehensive Error Handling
 - CORS headers for cross-origin requests

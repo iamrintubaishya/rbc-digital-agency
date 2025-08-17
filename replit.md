@@ -15,8 +15,8 @@ Code change policy: Always ask for permission before making code changes.
 ## Recent Changes (August 2025)
 
 ✅ **Replit Agent Migration Complete**: Successfully migrated project from Replit Agent to standard Replit environment with full functionality
+✅ **Vercel Runtime Configuration Fixed**: Removed invalid runtime specification causing deployment errors and simplified vercel.json for default Node.js runtime
 ✅ **Production API Export Fix**: Added proper module.exports to Vercel API functions to ensure correct serverless function execution
-✅ **Vercel Runtime Error Resolved**: Fixed invalid function runtime specification error by removing deprecated `functions` configuration from vercel.json
 ✅ **Vercel API Functions Rebuilt**: Completely rewrote Vercel serverless functions with proper export format and comprehensive error handling
 ✅ **Production Blog Issue Fixed**: Complete fix for Vercel API routing and blog data synchronization - production site now displays all 10 blog posts matching Replit environment
 ✅ **Vercel Runtime Error Resolved**: Fixed invalid function runtime specification error by removing deprecated `functions` configuration from vercel.json
