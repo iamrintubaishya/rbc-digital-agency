@@ -15,6 +15,7 @@ Code change policy: Always ask for permission before making code changes.
 ## Recent Changes (August 2025)
 
 ✅ **Production Blog Issue Fixed**: Complete fix for Vercel API routing and blog data synchronization - production site now displays all 10 blog posts matching Replit environment
+✅ **Vercel Runtime Error Resolved**: Fixed invalid function runtime specification error by removing deprecated `functions` configuration from vercel.json
 ✅ **Production Blog API Fixed**: Completely fixed Vercel serverless functions with simplified dependency-free blog API endpoints using hardcoded fallback data for bulletproof production reliability
 ✅ **Vercel Configuration Updated**: Fixed routing configuration with proper builds and routes for static assets and API endpoints
 ✅ **TypeScript Compilation Errors Resolved**: Eliminated all Drizzle ORM dependencies from Vercel functions to prevent deployment failures
