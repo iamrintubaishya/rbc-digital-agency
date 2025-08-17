@@ -481,10 +481,51 @@ const samplePosts = [
   }
 }
 
-// Temporarily disable database for testing - using MemStorage only
+// Smart storage initialization with fallback handling
 async function createStorage(): Promise<IStorage> {
-  console.log('🔧 TESTING MODE: Using MemStorage only to test blog functionality');
-  return new MemStorage();
+  if (process.env.DATABASE_URL) {
+    try {
+      const dbStorage = new DatabaseStorage();
+      // Test the connection by trying to fetch blog posts
+      const posts = await dbStorage.getBlogPosts();
+      console.log('✓ Database connection successful - using DatabaseStorage with', posts.length, 'posts');
+
+      // If database has fewer than expected posts, populate with MemStorage data
+      if (posts.length < 10) {
+        console.log('Database missing posts, populating from MemStorage...');
+        const memStorage = new MemStorage();
+        const memPosts = await memStorage.getBlogPosts();
+
+        for (const memPost of memPosts) {
+          const existing = posts.find(p => p.slug === memPost.slug);
+          if (!existing) {
+            await dbStorage.createBlogPost({
+              title: memPost.title,
+              slug: memPost.slug,
+              content: memPost.content,
+              excerpt: memPost.excerpt ?? undefined,
+              author: memPost.author ?? undefined,
+              coverImage: memPost.coverImage ?? undefined,
+              contentImages: memPost.contentImages ?? undefined,
+              audioUrl: memPost.audioUrl ?? undefined,
+              readingTime: memPost.readingTime ?? undefined,
+              tags: memPost.tags ?? undefined,
+              publishedAt: memPost.publishedAt?.toISOString(),
+            });
+            console.log('Added missing post:', memPost.title);
+          }
+        }
+      }
+
+      return dbStorage;
+    } catch (error: any) {
+      console.warn('Database connection failed, falling back to MemStorage:', error?.message || error);
+      return new MemStorage();
+    }
+  } else {
+    console.log('No DATABASE_URL found - using MemStorage with full blog content');
+    return new MemStorage();
+  }
 }
 
 // Create a synchronous storage getter for production environments

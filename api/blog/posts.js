@@ -163,3 +163,5 @@ module.exports = async (req, res) => {
     });
   }
 };
+
+module.exports = handler;
