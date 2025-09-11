@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { useRoute } from 'wouter';
 import { format } from 'date-fns';
 import { Calendar, User, ArrowLeft, Share2, Loader2, Facebook, Twitter, Linkedin, Copy, Clock } from "lucide-react";
@@ -8,22 +8,7 @@ import { AudioPlayer } from "../components/ui/audio-player";
 import { CommentSection } from "../components/ui/comment-section";
 import { useToast } from "../hooks/use-toast";
 import { Link } from "wouter";
-
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt?: string;
-  author?: string;
-  coverImage?: string;
-  contentImages?: string[];
-  audioUrl?: string;
-  readingTime?: string;
-  tags?: string[];
-  publishedAt?: string;
-  createdAt: string;
-}
+import { getBlogPostBySlug, type BlogPost } from "../data/blog-posts";
 
 interface BlogResponse {
   data: BlogPost[];
@@ -41,6 +26,9 @@ export function BlogPostPage() {
   const [match, params] = useRoute('/blog/:slug');
   const slug = params?.slug;
   const { toast } = useToast();
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   // Calculate reading time based on content
   const calculateReadingTime = (content: string): string => {
@@ -50,21 +38,26 @@ export function BlogPostPage() {
     return `${minutes} min read`;
   };
 
-  const { data: blogData, isLoading, error } = useQuery<{ data: BlogPost }>({
-    queryKey: ['/api/blog/posts', slug],
-    queryFn: async () => {
-      const response = await fetch(`/api/blog/posts/${slug}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch blog post: ${response.status}`);
-      }
-      return response.json();
-    },
-    enabled: !!slug,
-    retry: 3,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  useEffect(() => {
+    if (!slug) {
+      setError(true);
+      setIsLoading(false);
+      return;
+    }
 
-  const post = blogData?.data;
+    // Simulate API loading delay for smooth UX
+    const timer = setTimeout(() => {
+      const foundPost = getBlogPostBySlug(slug);
+      if (foundPost) {
+        setPost(foundPost);
+      } else {
+        setError(true);
+      }
+      setIsLoading(false);
+    }, 200);
+    
+    return () => clearTimeout(timer);
+  }, [slug]);
 
   if (isLoading) {
     return (

@@ -1,5 +1,4 @@
-import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Calendar, User, ArrowLeft, ExternalLink, Loader2, Clock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
@@ -7,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { SearchBar } from "../components/ui/search-bar";
 import { Link, useLocation } from "wouter";
+import { getBlogPosts } from "../data/blog-posts";
 
 interface BlogPost {
   id: string;
@@ -42,18 +42,20 @@ export function BlogPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [, setLocation] = useLocation();
+  const [blogData, setBlogData] = useState<BlogResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const pageSize = 12;
 
-  const { data: blogData, isLoading, error } = useQuery<BlogResponse>({
-    queryKey: ['/api/blog/posts', currentPage],
-    queryFn: async () => {
-      const response = await fetch(`/api/blog/posts?page=${currentPage}&pageSize=${pageSize}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch blog posts');
-      }
-      return response.json();
-    },
-  });
+  useEffect(() => {
+    // Simulate API loading delay for smooth UX
+    const timer = setTimeout(() => {
+      const data = getBlogPosts(currentPage, pageSize);
+      setBlogData(data);
+      setIsLoading(false);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [currentPage, pageSize]);
 
   const posts = blogData?.data || [];
 
@@ -119,7 +121,7 @@ export function BlogPage() {
           </div>
         )}
 
-        {error && (
+        {!isLoading && posts.length === 0 && (
           <div className="text-center py-16">
             <div className="max-w-md mx-auto">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
@@ -135,26 +137,7 @@ export function BlogPage() {
           </div>
         )}
 
-        {!isLoading && !error && posts.length === 0 && (
-          <div className="text-center py-16">
-            <div className="max-w-md mx-auto">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                No Articles Yet
-              </h2>
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
-                We're working on creating valuable content for you. Check back soon for expert insights and digital marketing strategies!
-              </p>
-              <Button variant="outline" asChild>
-                <a href="mailto:contact@rbcdigital.com">
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Subscribe for Updates
-                </a>
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {!isLoading && !error && posts.length > 0 && (
+        {!isLoading && posts.length > 0 && (
           <div className="max-w-6xl mx-auto">
             {searchQuery && (
               <div className="mb-8">

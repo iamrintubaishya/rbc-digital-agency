@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Calendar, User, ArrowRight, ExternalLink, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { getBlogPosts } from "../data/blog-posts";
 
 interface BlogPost {
   id: string;
@@ -32,16 +33,19 @@ interface BlogResponse {
 }
 
 export function BlogSection() {
-  const { data: blogData, isLoading, error } = useQuery<BlogResponse>({
-    queryKey: ['/api/blog/posts'],
-    queryFn: async () => {
-      const response = await fetch('/api/blog/posts?pageSize=9');
-      if (!response.ok) {
-        throw new Error('Failed to fetch blog posts');
-      }
-      return response.json();
-    },
-  });
+  const [blogData, setBlogData] = useState<BlogResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate API loading delay for smooth UX
+    const timer = setTimeout(() => {
+      const data = getBlogPosts(1, 9);
+      setBlogData(data);
+      setIsLoading(false);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const posts = blogData?.data || [];
 
@@ -80,34 +84,6 @@ export function BlogSection() {
     );
   }
 
-  if (error) {
-    return (
-      <section className="py-20 bg-slate-50 dark:bg-slate-900">
-        <div className="container mx-auto px-6 lg:px-16 xl:px-24">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-red-50 dark:bg-red-900/20 rounded-xl mb-6">
-              <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
-            <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
-              Latest Insights
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-4">
-              Unable to load blog posts at the moment. Please try again later.
-            </p>
-            <Button 
-              variant="outline" 
-              onClick={() => window.location.reload()}
-              className="border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
-            >
-              Try Again
-            </Button>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="py-20 bg-slate-50 dark:bg-slate-900">
