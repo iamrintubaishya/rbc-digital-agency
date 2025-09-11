@@ -1,14 +1,3 @@
 {
-  "buildCommand": "npm run vercel-build",
-  "outputDirectory": "dist/public",
-  "rewrites": [
-    {
-      "source": "/api/blog/posts",
-      "destination": "/api/blog/posts.js"
-    },
-    {
-      "source": "/api/blog/:slug",
-      "destination": "/api/blog/[slug].js?slug=:slug"
-    }
-  ]
+  "buildCommand": "npm run vercel-build"
 }
